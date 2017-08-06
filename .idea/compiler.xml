@@ -7,13 +7,26 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="jem-core" />
+        <module name="jem-crawler" />
+        <module name="jem-epm" />
+        <module name="jem-formats" />
+        <module name="jem-kotlin" />
         <module name="jem-rework" />
-        <module name="jemiv" />
+        <module name="scj" />
+        <module name="scj-addons" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="jem-core" target="1.7" />
+      <module name="jem-crawler" target="1.7" />
+      <module name="jem-epm" target="1.7" />
+      <module name="jem-formats" target="1.7" />
+      <module name="jem-kotlin" target="1.7" />
       <module name="jem-rework" target="1.7" />
       <module name="jemiv" target="1.7" />
+      <module name="scj" target="1.7" />
+      <module name="scj-addons" target="1.7" />
     </bytecodeTargetLevel>
   </component>
 </project>
