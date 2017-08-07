@@ -18,7 +18,6 @@
 
 package jem.scj.addon
 
-import jclp.value.Values
 import jem.Chapter
 import jem.crawler.CrawlerBook
 import jem.crawler.CrawlerListener
@@ -35,12 +34,12 @@ import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
 class CrawlerPlus : SCIPlugin, CrawlerListener {
-    private val threadPool = Values.lazy {
+    private val threadPool = lazy {
         val threads = SCISettings.get("crawler.maxThread", Int::class.java) as? Int
         Executors.newFixedThreadPool(threads ?: Runtime.getRuntime().availableProcessors() * 8)
     }
 
-    private val printPool = Values.lazy {
+    private val printCenter = lazy {
         Executors.newSingleThreadExecutor()
     }
 
@@ -76,22 +75,22 @@ class CrawlerPlus : SCIPlugin, CrawlerListener {
         val book = param.book
         if (book is CrawlerBook) {
             current.set(1)
-            book.schedule(threadPool.get())
+            book.schedule(threadPool.value)
             totals.set(book.totals)
         }
     }
 
     override fun destroy() {
-        if (threadPool.isInitialized) {
-            threadPool.get().shutdown()
+        if (threadPool.isInitialized()) {
+            threadPool.value.shutdown()
         }
-        if (printPool.isInitialized) {
-            printPool.get().shutdown()
+        if (printCenter.isInitialized()) {
+            printCenter.value.shutdown()
         }
     }
 
     override fun textFetched(chapter: Chapter, url: String) {
-        printPool.get().submit {
+        printCenter.value.submit {
             println("${current.getAndIncrement()}/${totals.get()}: ${chapter.title}")
         }
     }

@@ -58,11 +58,24 @@ public final class SoupUtils {
         return queryText(base, query, "");
     }
 
+    public static String queryText(Elements base, String query) {
+        return queryText(base, query, "");
+    }
+
     public static String queryText(Element base, String query, String separator) {
         return joinText(base.select(query), separator);
     }
 
+    public static String queryText(Elements base, String query, String separator) {
+        return joinText(base.select(query), separator);
+    }
+
     public static String queryLink(Element base, String query) {
+        val element = base.select(query).first();
+        return element != null ? element.absUrl("src") : null;
+    }
+
+    public static String queryLink(Elements base, String query) {
         val element = base.select(query).first();
         return element != null ? element.absUrl("src") : null;
     }

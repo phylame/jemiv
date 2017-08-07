@@ -24,7 +24,6 @@ import jem.crawler.*;
 import jem.util.JemException;
 import jem.util.TypedConfig;
 import jem.util.flob.Flobs;
-import jem.util.text.Texts;
 import lombok.val;
 import org.jsoup.nodes.Document;
 
@@ -42,6 +41,8 @@ public class QidianCom extends AbstractCrawler implements CrawlerFactory {
     public Book getBook(String url, TypedConfig config) throws JemException, IOException {
         if (url.contains("m.qidian.com")) {
             url = url.replace("m.qidian.com/book", "book.qidian.com/info");
+        } else {
+            url = url.replace("#Catalog", "");
         }
         Document doc;
         try {
@@ -50,20 +51,28 @@ public class QidianCom extends AbstractCrawler implements CrawlerFactory {
             throw new JemException("interrupted", e);
         }
         val book = new CrawlerBook();
-        setValue(book, TITLE, queryText(doc, "div.book-information div.book-info h1 em"));
+        val info = doc.select("div.book-information div.book-info");
+        setTitle(book, queryText(info, "h1 em"));
         val src = queryLink(doc, "a#bookImg img");
         if (src != null) {
-            setValue(book, COVER, Flobs.forURL(new URL(src.replaceFirst("[\\d]+$", "600")), "image/jpg"));
+            setCover(book, Flobs.forURL(new URL(src.replaceFirst("[\\d]+$", "600") + ".jpg"), "image/jpg"));
         }
-        setValue(book, AUTHOR, queryText(doc, "div.book-information div.book-info h1 a"));
-        setValue(book, KEYWORDS, queryText(doc, "div.book-information div.book-info p.tag a", ";"));
-        setValue(book, INTRO, Texts.forString(queryText(doc, "div.book-intro p", "\n")));
+        setAuthor(book, queryText(info, "h1 a"));
+        setValue(book, KEYWORDS, queryText(info, "p.tag a", VALUES_SEPARATOR));
+        setValue(book, "brief", queryText(doc, "p.intro"));
+        setWords(book, queryText(info, "p em:eq(0)") + queryText(info, "p cite:eq(1)"));
+        setIntro(book, queryText(doc, "div.book-intro p", "\n"));
         getContents(book, doc, config);
         return book;
     }
 
-    private void getContents(Book book, Document doc, TypedConfig config) {
-        for (val div : doc.select("div.volume-wrap div.volume")) {
+    private void getContents(Book book, Document doc, TypedConfig config) throws IOException, JemException {
+        val toc = doc.select("div.volume-wrap div.volume");
+        if (toc.isEmpty()) {
+//            fetchContents(book, doc.baseUri() + "#Catalog", config);
+            return;
+        }
+        for (val div : toc) {
             val section = new Chapter(firstText(div.select("h3").first()));
             setValue(section, WORDS, queryText(div, "h3 cite"));
             book.append(section);
@@ -73,6 +82,17 @@ public class QidianCom extends AbstractCrawler implements CrawlerFactory {
                 section.append(chapter);
             }
         }
+    }
+
+    private void fetchContents(Book book, String url, TypedConfig config) throws JemException, IOException {
+        Document doc;
+        try {
+            doc = getSoup(url, config);
+        } catch (InterruptedException e) {
+            throw new JemException("interrupted", e);
+        }
+//        System.out.println(doc.select("div.volume-wrap"));
+//        getContents(book, doc, config);
     }
 
     @Override
