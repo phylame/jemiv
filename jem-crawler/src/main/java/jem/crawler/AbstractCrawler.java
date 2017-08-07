@@ -18,22 +18,23 @@
 
 package jem.crawler;
 
+import static jclp.util.StringUtils.isNotEmpty;
+import static jclp.util.StringUtils.valueOfName;
+
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.net.URLConnection;
+
+import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
 import jclp.io.HttpUtils;
 import jclp.io.IOUtils;
 import jem.Chapter;
 import jem.util.JemException;
 import jem.util.TypedConfig;
 import lombok.val;
-import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-
-import java.io.IOException;
-import java.net.SocketTimeoutException;
-import java.net.URLConnection;
-
-import static jclp.util.StringUtils.isNotEmpty;
-import static jclp.util.StringUtils.valueOfName;
 
 public abstract class AbstractCrawler implements Crawler {
     protected abstract String fetchText(String url, TypedConfig config) throws JemException, IOException;

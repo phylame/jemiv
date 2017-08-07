@@ -17,6 +17,6 @@
  */
 
 /**
- * Core of Jem classes.
+ * Core of Jem toolkit.
  */
 package jem;

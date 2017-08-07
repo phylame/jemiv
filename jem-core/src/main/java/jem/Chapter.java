@@ -18,17 +18,28 @@
 
 package jem;
 
+import static jclp.util.Validate.require;
+import static jem.Attributes.TITLE;
+import static jem.Attributes.getString;
+import static jem.Attributes.newAttributes;
+import static jem.Attributes.setTitle;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import jclp.function.Consumer;
 import jclp.log.Log;
-import jclp.util.Hierarchical;
+import jclp.util.Hierarchial;
 import jem.util.VariantMap;
 import jem.util.text.Text;
-import lombok.*;
-
-import java.util.*;
-
-import static jclp.util.Validate.require;
-import static jem.Attributes.*;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
+import lombok.SneakyThrows;
+import lombok.val;
 
 /**
  * The chapter/section in Jem book models.
@@ -43,7 +54,7 @@ import static jem.Attributes.*;
  * <li>Cleanups: actions for cleanup resources of the chapter</li>
  * </ul>
  */
-public class Chapter implements Hierarchical<Chapter>, Cloneable {
+public class Chapter implements Hierarchial<Chapter>, Cloneable {
     private static final String TAG = "Chapter";
 
     /**
@@ -79,25 +90,25 @@ public class Chapter implements Hierarchical<Chapter>, Cloneable {
      * @throws NullPointerException if the title is null
      */
     public Chapter(String title) {
-        setValue(this, TITLE, title);
+        setTitle(this, title);
     }
 
     /**
      * Constructs instance with specified title and specified text.
      *
      * @param title the chapter title
-     * @param text  main text
+     * @param text main text
      * @throws NullPointerException if the title is null
      */
     public Chapter(String title, Text text) {
-        setValue(this, TITLE, title);
-        this.text = text;
+        setTitle(this, title);
+        setText(text);
     }
 
     /**
      * Constructs instance with coping data from specified chapter.
      *
-     * @param chapter  the chapter to be copied
+     * @param chapter the chapter to be copied
      * @param deepCopy {@code true} to clone all sub-chapters
      * @throws NullPointerException if the chapter is null
      */
@@ -118,7 +129,7 @@ public class Chapter implements Hierarchical<Chapter>, Cloneable {
      * Appends specified chapter to the end of sub-chapter list.
      *
      * @param chapter chapter to be appended to sub-chapter list
-     * @throws NullPointerException     if the specified chapter is null
+     * @throws NullPointerException if the specified chapter is null
      * @throws IllegalArgumentException if the specified chapter is not solitary
      */
     public final void append(@NonNull Chapter chapter) {
@@ -127,10 +138,11 @@ public class Chapter implements Hierarchical<Chapter>, Cloneable {
     }
 
     /**
-     * Creates a new chapter and appends to sub-chapter list.
+     * Creates a new chapter with specified title and appends to sub-chapter list.
      *
      * @param title the title of new chapter
      * @return the new created chapter
+     * @throws NullPointerException if the title is null
      */
     public final Chapter newChapter(String title) {
         val chapter = new Chapter(title);
@@ -141,10 +153,10 @@ public class Chapter implements Hierarchical<Chapter>, Cloneable {
     /**
      * Inserts the specified chapter at the specified position in sub-chapter list.
      *
-     * @param index   index at which the specified chapter is to be inserted
+     * @param index index at which the specified chapter is to be inserted
      * @param chapter chapter to be inserted
-     * @throws NullPointerException      if the specified chapter is null
-     * @throws IllegalArgumentException  if the specified chapter is not solitary
+     * @throws NullPointerException if the specified chapter is null
+     * @throws IllegalArgumentException if the specified chapter is not solitary
      * @throws IndexOutOfBoundsException if the index is out of range (<tt>index &lt; 0 || index &gt; size()</tt>)
      */
     public final void insert(int index, @NonNull Chapter chapter) {
@@ -177,7 +189,7 @@ public class Chapter implements Hierarchical<Chapter>, Cloneable {
      *
      * @param chapter chapter to search for
      * @return the index of the first occurrence of the specified chapter in sub-chapter list, or -1 if sub-chapter list
-     * does not contain the chapter
+     *         does not contain the chapter
      */
     public final int indexOf(Chapter chapter) {
         return chapter == null || chapter.parent != this ? -1 : children.indexOf(chapter);
@@ -211,9 +223,9 @@ public class Chapter implements Hierarchical<Chapter>, Cloneable {
      * Replaces the specified chapter in sub-chapter list with the specified new chapter.
      *
      * @param chapter the chapter to be replaced
-     * @param target  chapter to be stored at the specified position
+     * @param target chapter to be stored at the specified position
      * @return <tt>true</tt> if sub-chapter list contained the specified chapter
-     * @throws NullPointerException     if the specified chapter is null
+     * @throws NullPointerException if the specified chapter is null
      * @throws IllegalArgumentException if the specified chapter is not solitary
      */
     public final boolean replace(@NonNull Chapter chapter, @NonNull Chapter target) {
@@ -230,11 +242,11 @@ public class Chapter implements Hierarchical<Chapter>, Cloneable {
     /**
      * Replaces the chapter at the specified position in sub-chapter with the specified chapter.
      *
-     * @param index   index of the chapter to replace
+     * @param index index of the chapter to replace
      * @param chapter chapter to be stored at the specified position
      * @return chapter previously at the specified position
-     * @throws NullPointerException      if the specified chapter is null
-     * @throws IllegalArgumentException  if the specified chapter is not solitary
+     * @throws NullPointerException if the specified chapter is null
+     * @throws IllegalArgumentException if the specified chapter is not solitary
      * @throws IndexOutOfBoundsException if the index is out of range (<tt>index &lt; 0 || index &gt; size()</tt>)
      */
     public final Chapter replaceAt(int index, @NonNull Chapter chapter) {
@@ -278,9 +290,9 @@ public class Chapter implements Hierarchical<Chapter>, Cloneable {
      * Swaps the chapters at the specified positions in sub-chapter list.
      *
      * @param from the index of one chapter to be swapped
-     * @param to   the index of the other chapter to be swapped
+     * @param to the index of the other chapter to be swapped
      * @throws IndexOutOfBoundsException if either <tt>from</tt> or <tt>to</tt> is out of range (from &lt; 0 || from
-     *                                   &gt;= size() || to &lt; 0 || to &gt;= size()).
+     *             &gt;= size() || to &lt; 0 || to &gt;= size()).
      */
     public final void swap(int from, int to) {
         Collections.swap(children, from, to);
@@ -368,9 +380,9 @@ public class Chapter implements Hierarchical<Chapter>, Cloneable {
         for (val cleanup : cleanups) {
             cleanup.accept(this);
         }
+        clear(true);
         cleanups.clear();
         attributes.clear();
-        clear(true);
         if (parent != null) {
             parent.remove(this);
         }

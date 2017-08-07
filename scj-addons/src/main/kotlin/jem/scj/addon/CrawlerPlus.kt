@@ -36,8 +36,12 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class CrawlerPlus : SCIPlugin, CrawlerListener {
     private val threadPool = Values.lazy {
-        val threads = SCISettings.get("crawler.maxThread", Int::class.java) as?Int
+        val threads = SCISettings.get("crawler.maxThread", Int::class.java) as? Int
         Executors.newFixedThreadPool(threads ?: Runtime.getRuntime().availableProcessors() * 8)
+    }
+
+    private val printPool = Values.lazy {
+        Executors.newSingleThreadExecutor()
     }
 
     private var totals: AtomicInteger = AtomicInteger()
@@ -77,19 +81,18 @@ class CrawlerPlus : SCIPlugin, CrawlerListener {
         }
     }
 
-    override fun onBookSaved(param: MakerParam) {
-        print("\r")
-        System.out.flush()
-    }
-
     override fun destroy() {
         if (threadPool.isInitialized) {
-            val pool = threadPool.get()
-            pool.shutdown()
+            threadPool.get().shutdown()
+        }
+        if (printPool.isInitialized) {
+            printPool.get().shutdown()
         }
     }
 
     override fun textFetched(chapter: Chapter, url: String) {
-        println("${current.getAndIncrement()}/${totals.get()}: ${chapter.title}")
+        printPool.get().submit {
+            println("${current.getAndIncrement()}/${totals.get()}: ${chapter.title}")
+        }
     }
 }

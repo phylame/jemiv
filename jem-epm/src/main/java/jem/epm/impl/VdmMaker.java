@@ -18,14 +18,15 @@
 
 package jem.epm.impl;
 
+import java.io.File;
+import java.io.IOException;
+
+import jclp.util.StringUtils;
 import jclp.vdm.VdmWriter;
 import jem.epm.util.M;
 import jem.epm.util.VdmUtils;
 import jem.util.TypedConfig;
 import lombok.val;
-
-import java.io.File;
-import java.io.IOException;
 
 public abstract class VdmMaker extends AbstractMaker<VdmWriter> {
     @Override
@@ -34,6 +35,10 @@ public abstract class VdmMaker extends AbstractMaker<VdmWriter> {
         val writer = VdmUtils.openWriter(file, type);
         if (writer == null) {
             throw new IOException(M.translator().tr("err.vdm.unsupported", type));
+        }
+        val comment = config.getString("vdm.comment", null);
+        if (StringUtils.isNotEmpty(comment)) {
+            writer.setComment(comment);
         }
         return writer;
     }
