@@ -116,7 +116,7 @@ public final class SoupUtils {
 
     private static final NodeToString nodeToString = new NodeToString();
 
-    private static final StringNotEmpty stringNotEmpty = new StringNotEmpty();
+    public static final StringNotEmpty stringNotEmpty = new StringNotEmpty();
 
     private static class NodeToString implements Render<Node>, Function<Node, String> {
         @Override

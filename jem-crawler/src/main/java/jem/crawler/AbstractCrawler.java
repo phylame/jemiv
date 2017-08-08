@@ -18,96 +18,104 @@
 
 package jem.crawler;
 
-import static jclp.util.StringUtils.isNotEmpty;
-import static jclp.util.StringUtils.valueOfName;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.SocketTimeoutException;
-import java.net.URLConnection;
-import java.util.zip.GZIPInputStream;
-
+import jclp.io.HttpUtils;
+import jclp.io.IOUtils;
+import jem.util.TypedConfig;
+import jem.util.flob.Flob;
+import jem.util.flob.Flobs;
+import lombok.val;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import jclp.io.HttpUtils;
-import jclp.io.IOUtils;
-import jem.util.TypedConfig;
-import lombok.val;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InterruptedIOException;
+import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.zip.GZIPInputStream;
+
+import static jclp.util.StringUtils.isNotEmpty;
+import static jclp.util.StringUtils.valueOfName;
 
 public abstract class AbstractCrawler implements Crawler {
-    protected int fetchPage(int page) throws IOException {
+    protected int fetchPage(int page, Object arg) throws IOException {
         throw new UnsupportedOperationException("Not Implemented");
     }
 
-    protected final void fetchToc() throws IOException, InterruptedException {
-        for (int i = 2; i < fetchPage(1); ++i) {
+    protected final void fetchToc(Object arg) throws IOException {
+        for (int i = 2; i < fetchPage(1, arg); ++i) {
             if (Thread.interrupted()) {
-                throw new InterruptedException();
+                throw new InterruptedIOException();
             }
-            fetchPage(i);
+            fetchPage(i, arg);
         }
     }
 
-    protected final Document getSoup(String url, TypedConfig config) throws IOException, InterruptedException {
+    protected final Flob getFlob(String url) throws MalformedURLException {
+        return Flobs.forURL(new URL(url));
+    }
+
+    protected final Document getSoup(String url, TypedConfig config) throws IOException {
         return fetchSoup(url, "get", config);
     }
 
-    protected final Document postSoup(String url, TypedConfig config) throws IOException, InterruptedException {
+    protected final Document postSoup(String url, TypedConfig config) throws IOException {
         return fetchSoup(url, "post", config);
     }
 
-    private Document fetchSoup(String url, String method, TypedConfig config) throws IOException, InterruptedException {
+    private Document fetchSoup(String url, String method, TypedConfig config) throws IOException {
         val tryTimes = config.getInt("crawler.net.tryTimes", 3);
         val timeout = config.getInt("crawler.net.timeout", 5000);
         for (int i = 0; i < tryTimes; ++i) {
             if (Thread.interrupted()) {
-                throw new InterruptedException();
+                throw new InterruptedIOException();
             }
             try {
-                val connection = Jsoup.connect(url)
+                val conn = Jsoup.connect(url)
                         .userAgent(SoupUtils.randomAgent())
                         .header("Accept-Encoding", "gzip,deflate")
                         .timeout(timeout);
-                return "get".equalsIgnoreCase(method) ? connection.get() : connection.post();
+                return "get".equalsIgnoreCase(method) ? conn.get() : conn.post();
             } catch (SocketTimeoutException ignored) {
             }
         }
         throw new SocketTimeoutException("cannot connect to " + url);
     }
 
-    protected final JSONObject getJson(String url, TypedConfig config) throws IOException, InterruptedException {
+    protected final JSONObject getJson(String url, TypedConfig config) throws IOException {
         return fetchJson(url, "get", config);
     }
 
-    protected final JSONObject postJson(String url, TypedConfig config) throws IOException, InterruptedException {
+    protected final JSONObject postJson(String url, TypedConfig config) throws IOException {
         return fetchJson(url, "post", config);
     }
 
-    private JSONObject fetchJson(String url, String method, TypedConfig config)
-            throws IOException, InterruptedException {
+    private JSONObject fetchJson(String url, String method, TypedConfig config) throws IOException {
         val conn = openConnection(url, method, config);
         val contentType = conn.getContentType();
         String encoding = null;
         if (isNotEmpty(contentType)) {
             encoding = valueOfName(contentType, "charset", ";");
         }
-        return new JSONObject(IOUtils.toString(conn.getInputStream(), encoding));
+        return new JSONObject(IOUtils.toString(openStream(conn), encoding));
     }
 
-    protected final InputStream fetchStream(String url, String method, TypedConfig config)
-            throws IOException, InterruptedException {
-        val conn = openConnection(url, method, config);
+
+    private InputStream openStream(URLConnection conn) throws IOException {
         val encoding = conn.getHeaderField("Content-Encoding");
-        if ("gzip".equalsIgnoreCase(encoding)) {
-            return new GZIPInputStream(conn.getInputStream());
-        }
-        return conn.getInputStream();
+        return "gzip".equalsIgnoreCase(encoding)
+                ? new GZIPInputStream(conn.getInputStream())
+                : conn.getInputStream();
     }
 
-    protected final URLConnection openConnection(String url, String method, TypedConfig config)
-            throws IOException, InterruptedException {
+    protected final InputStream fetchStream(String url, String method, TypedConfig config) throws IOException {
+        return openStream(openConnection(url, method, config));
+    }
+
+    protected final URLConnection openConnection(String url, String method, TypedConfig config) throws IOException {
         val tryTimes = config.getInt("crawler.net.tryTimes", 3);
         val timeout = config.getInt("crawler.net.timeout", 5000);
         val request = HttpUtils.Request.builder()
@@ -119,7 +127,7 @@ public abstract class AbstractCrawler implements Crawler {
                 .build();
         for (int i = 0; i < tryTimes; ++i) {
             if (Thread.interrupted()) {
-                throw new InterruptedException();
+                throw new InterruptedIOException();
             }
             try {
                 return request.connect();

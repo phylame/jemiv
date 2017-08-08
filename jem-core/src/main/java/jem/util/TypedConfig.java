@@ -18,18 +18,22 @@
 
 package jem.util;
 
+import jclp.setting.PropertiesSettings;
 import jclp.setting.Settings;
 import jclp.value.Values;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 public class TypedConfig {
-    private final String prefix;
+    private String prefix;
 
-    private final Settings settings;
+    private Settings settings;
 
     public TypedConfig(Settings settings) {
         this("", settings);
+    }
+
+    public TypedConfig(String prefix, Settings settings) {
+        this.prefix = prefix;
+        this.settings = settings;
     }
 
     public int getInt(String key, int fallback) {
@@ -55,6 +59,19 @@ public class TypedConfig {
             return fallback;
         }
         return Values.get(value != null ? value : fallback);
+    }
+
+    public void set(String key, Object value) {
+        if (settings == null) {
+            settings = new PropertiesSettings();
+        }
+        settings.set(key, value);
+    }
+
+    public void remove(String key) {
+        if (settings != null) {
+            settings.remove(key);
+        }
     }
 
     @Override

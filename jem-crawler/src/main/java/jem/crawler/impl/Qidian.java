@@ -18,44 +18,29 @@
 
 package jem.crawler.impl;
 
-import static jclp.util.CollectionUtils.setOf;
-import static jclp.util.StringUtils.trimmed;
-import static jem.Attributes.WORDS;
-import static jem.Attributes.setAuthor;
-import static jem.Attributes.setCover;
-import static jem.Attributes.setGenre;
-import static jem.Attributes.setIntro;
-import static jem.Attributes.setState;
-import static jem.Attributes.setTitle;
-import static jem.Attributes.setValue;
-import static jem.Attributes.setWords;
-import static jem.crawler.SoupUtils.firstText;
-import static jem.crawler.SoupUtils.queryLink;
-import static jem.crawler.SoupUtils.queryText;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.Set;
-
+import jclp.io.IOUtils;
+import jem.Book;
+import jem.Chapter;
+import jem.crawler.CrawlerBook;
+import jem.crawler.CrawlerText;
+import jem.crawler.M;
+import jem.crawler.ReusedCrawler;
+import jem.util.JemException;
+import jem.util.TypedConfig;
+import lombok.val;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 
-import jclp.io.IOUtils;
-import jem.Book;
-import jem.Chapter;
-import jem.crawler.AbstractCrawler;
-import jem.crawler.Crawler;
-import jem.crawler.CrawlerBook;
-import jem.crawler.CrawlerFactory;
-import jem.crawler.CrawlerText;
-import jem.crawler.M;
-import jem.util.JemException;
-import jem.util.TypedConfig;
-import jem.util.flob.Flobs;
-import lombok.val;
+import java.io.IOException;
+import java.util.Set;
 
-public class Qidian extends AbstractCrawler implements CrawlerFactory {
+import static jclp.util.CollectionUtils.setOf;
+import static jclp.util.StringUtils.trimmed;
+import static jem.Attributes.*;
+import static jem.crawler.SoupUtils.*;
+
+public class Qidian extends ReusedCrawler {
     @Override
     public Book getBook(String url, TypedConfig config) throws JemException, IOException {
         if (url.contains("m.qidian.com")) {
@@ -63,24 +48,19 @@ public class Qidian extends AbstractCrawler implements CrawlerFactory {
         } else {
             url = url.replace("#Catalog", "");
         }
-        Document doc;
-        try {
-            doc = getSoup(url, config);
-        } catch (InterruptedException e) {
-            throw new JemException("interrupted", e);
-        }
+        val doc = getSoup(url, config);
         val book = new CrawlerBook();
-        val info = doc.select("div.book-information div.book-info");
-        setTitle(book, queryText(info, "h1 em"));
+        val stub = doc.select("div.book-information div.book-info");
+        setTitle(book, queryText(stub, "h1 em"));
         val src = queryLink(doc, "a#bookImg img");
         if (src != null) {
-            setCover(book, Flobs.forURL(new URL(src.replaceFirst("[\\d]+$", "600") + ".jpg"), "image/jpg"));
+            setCover(book, getFlob(src.replaceFirst("[\\d]+$", "600") + ".jpg"));
         }
-        setAuthor(book, queryText(info, "h1 a"));
-        setState(book, queryText(info, "p.tag span:eq(0)"));
-        setGenre(book, queryText(info, "p.tag a", "/"));
+        setAuthor(book, queryText(stub, "h1 a"));
+        setState(book, queryText(stub, "p.tag span:eq(0)"));
+        setGenre(book, queryText(stub, "p.tag a", "/"));
         setValue(book, "brief", queryText(doc, "p.intro"));
-        setWords(book, queryText(info, "p em:eq(0)") + queryText(info, "p cite:eq(1)"));
+        setWords(book, queryText(stub, "p em:eq(0)") + queryText(stub, "p cite:eq(1)"));
         setIntro(book, queryText(doc, "div.book-intro p", System.lineSeparator()));
         getContents(book, doc, config);
         return book;
@@ -108,10 +88,7 @@ public class Qidian extends AbstractCrawler implements CrawlerFactory {
         try (val in = fetchStream(baseURL + "/catalog", "get", config)) {
             val data = IOUtils.toString(in, "utf-8");
             val start = data.indexOf("[{", data.indexOf("g_data.volumes"));
-            val end = data.lastIndexOf("}];");
-            parts = new JSONArray(data.substring(start, end + 2));
-        } catch (InterruptedException e) {
-            throw new JemException("interrupted", e);
+            parts = new JSONArray(data.substring(start, data.lastIndexOf("}];") + 2));
         }
         Chapter section;
         for (val se : parts) {
@@ -129,20 +106,10 @@ public class Qidian extends AbstractCrawler implements CrawlerFactory {
 
     @Override
     public String getText(String url, TypedConfig config) throws JemException, IOException {
-        Document doc;
-        try {
-            doc = getSoup(url, config);
-        } catch (InterruptedException e) {
-            throw new JemException("interrupted", e);
-        }
+        val doc = getSoup(url, config);
         return url.contains("m.qidian.com")
                 ? queryText(doc, "article#chapterContent p", System.lineSeparator())
                 : queryText(doc, "div.read-content p", System.lineSeparator());
-    }
-
-    @Override
-    public Crawler getCrawler() {
-        return this;
     }
 
     @Override
