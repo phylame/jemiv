@@ -344,11 +344,11 @@ public class Chapter implements Hierarchial<Chapter>, Cloneable {
     private Set<Consumer<? super Chapter>> cleanups = new LinkedHashSet<>();
 
     /**
-     * Registers specified cleanup action.
+     * Adds specified cleanup action.
      *
      * @param cleanup the action to be executed when cleaning up the chapter
      */
-    public final void registerCleanup(@NonNull Consumer<? super Chapter> cleanup) {
+    public final void addCleanup(@NonNull Consumer<? super Chapter> cleanup) {
         cleanups.add(cleanup);
     }
 

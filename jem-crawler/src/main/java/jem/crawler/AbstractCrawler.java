@@ -22,8 +22,10 @@ import static jclp.util.StringUtils.isNotEmpty;
 import static jclp.util.StringUtils.valueOfName;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.SocketTimeoutException;
 import java.net.URLConnection;
+import java.util.zip.GZIPInputStream;
 
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -31,24 +33,10 @@ import org.jsoup.nodes.Document;
 
 import jclp.io.HttpUtils;
 import jclp.io.IOUtils;
-import jem.Chapter;
-import jem.util.JemException;
 import jem.util.TypedConfig;
 import lombok.val;
 
 public abstract class AbstractCrawler implements Crawler {
-    protected abstract String fetchText(String url, TypedConfig config) throws JemException, IOException;
-
-    @Override
-    public String getText(String url, TypedConfig config, Chapter chapter) throws JemException, IOException {
-        val text = fetchText(url, config);
-        val listener = config.get("crawler.listener", CrawlerListener.class, null);
-        if (listener != null) {
-            listener.textFetched(chapter, url);
-        }
-        return text;
-    }
-
     protected int fetchPage(int page) throws IOException {
         throw new UnsupportedOperationException("Not Implemented");
     }
@@ -97,17 +85,29 @@ public abstract class AbstractCrawler implements Crawler {
         return fetchJson(url, "post", config);
     }
 
-    private JSONObject fetchJson(String url, String method, TypedConfig config) throws IOException, InterruptedException {
-        val connection = openConnection(url, method, config);
-        val contentType = connection.getContentType();
+    private JSONObject fetchJson(String url, String method, TypedConfig config)
+            throws IOException, InterruptedException {
+        val conn = openConnection(url, method, config);
+        val contentType = conn.getContentType();
         String encoding = null;
         if (isNotEmpty(contentType)) {
             encoding = valueOfName(contentType, "charset", ";");
         }
-        return new JSONObject(IOUtils.toString(connection.getInputStream(), encoding));
+        return new JSONObject(IOUtils.toString(conn.getInputStream(), encoding));
     }
 
-    protected final URLConnection openConnection(String url, String method, TypedConfig config) throws IOException, InterruptedException {
+    protected final InputStream fetchStream(String url, String method, TypedConfig config)
+            throws IOException, InterruptedException {
+        val conn = openConnection(url, method, config);
+        val encoding = conn.getHeaderField("Content-Encoding");
+        if ("gzip".equalsIgnoreCase(encoding)) {
+            return new GZIPInputStream(conn.getInputStream());
+        }
+        return conn.getInputStream();
+    }
+
+    protected final URLConnection openConnection(String url, String method, TypedConfig config)
+            throws IOException, InterruptedException {
         val tryTimes = config.getInt("crawler.net.tryTimes", 3);
         val timeout = config.getInt("crawler.net.timeout", 5000);
         val request = HttpUtils.Request.builder()

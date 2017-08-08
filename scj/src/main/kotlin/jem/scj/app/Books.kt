@@ -22,9 +22,10 @@ import jclp.log.Log
 import jclp.setting.MapSettings
 import jem.Attributes
 import jem.Book
+import jem.kotlin.set
 import jem.epm.util.MakerParam
 import jem.epm.util.ParserParam
-import jem.kotlin.set
+import jem.util.JemException
 import jem.util.Variants
 import mala.core.App
 import mala.core.App.tr
@@ -58,7 +59,7 @@ fun outParam(book: Book): MakerParam = MakerParam.builder()
 fun newBook(attaching: Boolean): Book {
     val book = Book()
     attachBook(book, attaching)
-    App.sciAction { onBookOpened(book) }
+    App.sciAction { onBookOpened(book, null) }
     return book
 }
 
@@ -75,15 +76,18 @@ fun openBook(param: ParserParam, attaching: Boolean): Book? {
 
 fun loadBook(param: ParserParam, attaching: Boolean): Book {
     App.sciAction { onOpenBook(param) }
-    val book: Book
+    val book: Book?
     try {
         book = SCI.epmManager.readBook(param)
+        if (book == null) {
+            throw JemException(tr("error.input.unsupported", param.format))
+        }
     } catch (e: Exception) {
-        App.sciAction { onOpenFailed(param, e) }
+        App.sciAction { onOpenFailed(e, param) }
         throw e
     }
     attachBook(book, attaching)
-    App.sciAction { onBookOpened(book) }
+    App.sciAction { onBookOpened(book, param) }
     return book
 }
 
@@ -108,9 +112,11 @@ fun saveBook(param: MakerParam): String? {
 fun makeBook(param: MakerParam): String? {
     App.sciAction { onSaveBook(param) }
     try {
-        SCI.epmManager.writeBook(param)
+        if (!SCI.epmManager.writeBook(param)) {
+            throw JemException(tr("error.output.unsupported", param.format))
+        }
     } catch (e: Exception) {
-        App.sciAction { onSaveFailed(param, e) }
+        App.sciAction { onSaveFailed(e, param) }
         throw e
     }
     App.sciAction { onBookSaved(param) }

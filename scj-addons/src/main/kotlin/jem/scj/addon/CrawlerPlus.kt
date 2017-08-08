@@ -29,6 +29,8 @@ import jem.scj.app.SCIPlugin
 import jem.scj.app.SCISettings
 import mala.cli.action
 import mala.core.App
+import mala.core.App.tr
+import mala.core.times
 import org.apache.commons.cli.Option
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
@@ -53,14 +55,15 @@ class CrawlerPlus : SCIPlugin, CrawlerListener {
         Supports.attachTranslator()
         Option.builder()
                 .longOpt("list-crawlers")
-                .desc(App.tr("opt.listCrawlers.desc"))
+                .desc(tr("opt.listCrawlers.desc"))
                 .action { _ ->
-                    val plugins = SCI.crawlerManager.services.map {
-                        it.name + "\n" + it.names.joinToString("\n") { "  " + it }
+                    println(tr("listCrawlers.legend"))
+                    SCI.crawlerManager.services.forEach {
+                        println(tr("listCrawlers.name", it.name))
+                        println(tr("listCrawlers.hosts", it.names.joinToString(", ")))
+                        println("-" * 64)
                     }
-                    println(App.tr("listCrawlers.legend", plugins.size))
-                    println(plugins.joinToString("\n"))
-                    0
+                    App.exit(0)
                 }
     }
 

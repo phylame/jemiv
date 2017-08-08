@@ -18,17 +18,18 @@
 
 package jem.crawler;
 
-import jclp.setting.Settings;
-import jem.Book;
-import jem.epm.Parser;
-import jem.epm.impl.AbstractFactory;
-import jem.util.JemException;
-import lombok.val;
+import static jclp.util.CollectionUtils.setOf;
 
 import java.io.IOException;
 import java.util.Set;
 
-import static jclp.util.CollectionUtils.setOf;
+import jclp.setting.Settings;
+import jem.Book;
+import jem.epm.Parser;
+import jem.epm.impl.AbstractFactory;
+import jem.epm.util.ParserException;
+import jem.util.JemException;
+import lombok.val;
 
 public class CrawlerParser extends AbstractFactory implements Parser {
     @Override
@@ -43,12 +44,16 @@ public class CrawlerParser extends AbstractFactory implements Parser {
         if (crawlerManager == null) {
             crawlerManager = new CrawlerManager();
         }
-        return crawlerManager.fetchBook(input, arguments);
+        val book = crawlerManager.fetchBook(input, arguments);
+        if (book == null) {
+            throw new ParserException(M.translator().tr("error.crawler.unsupported", input));
+        }
+        return book;
     }
 
     @Override
     public String getName() {
-        return "Jem Book Crawler";
+        return "Book Crawler";
     }
 
     @Override

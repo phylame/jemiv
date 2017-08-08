@@ -27,15 +27,22 @@ import jem.epm.EpmManager
 import jem.epm.util.MakerParam
 import jem.epm.util.ParserParam
 import jem.util.Build
-import mala.cli.*
+import mala.cli.CDelegate
+import mala.cli.PropertiesFetcher
+import mala.cli.RawFetcher
+import mala.cli.action
+import mala.cli.group
 import mala.core.App
 import mala.core.App.tr
 import mala.core.AppVerbose
 import mala.core.Plugin
 import mala.core.times
-import org.apache.commons.cli.*
-import java.util.*
-import kotlin.collections.HashMap
+import org.apache.commons.cli.DefaultParser
+import org.apache.commons.cli.HelpFormatter
+import org.apache.commons.cli.Option
+import org.apache.commons.cli.OptionGroup
+import java.util.Calendar
+import java.util.Locale
 
 fun main(args: Array<String>) {
     App.run(SCI, args)
@@ -49,16 +56,16 @@ object SCI : CDelegate(DefaultParser()) {
     override val name = "scj"
 
     @Suppress("UNCHECKED_CAST")
-    val inArguments by lazy { context["p"] as? MutableMap<String, Any> ?: HashMap() }
+    val inArguments get() = context["p"] as? MutableMap<String, Any> ?: HashMap()
 
     @Suppress("UNCHECKED_CAST")
-    val outArguments by lazy { context["m"] as? MutableMap<String, Any> ?: HashMap() }
+    val outArguments get() = context["m"] as? MutableMap<String, Any> ?: HashMap()
 
     @Suppress("UNCHECKED_CAST")
-    val outAttributes by lazy { context["a"] as? MutableMap<String, Any> ?: HashMap() }
+    val outAttributes get() = context["a"] as? MutableMap<String, Any> ?: HashMap()
 
     @Suppress("UNCHECKED_CAST")
-    val outExtensions by lazy { context["e"] as? MutableMap<String, Any> ?: HashMap() }
+    val outExtensions get() = context["e"] as? MutableMap<String, Any> ?: HashMap()
 
     val outputFormat get() = context["t"]?.toString() ?: SCISettings.outputFormat
 
@@ -66,23 +73,12 @@ object SCI : CDelegate(DefaultParser()) {
 
     val crawlerManager by lazy { CrawlerManager() }
 
-    lateinit var epmManager: EpmManager
+    val epmManager by lazy { EpmManager() }
 
     override fun onStart() {
         initApp()
         initJem()
         initOptions()
-    }
-
-    override fun onOptionError(e: ParseException) {
-        val msg = when (e) {
-            is UnrecognizedOptionException -> tr("error.opt.unknown", e.option)
-            is AlreadySelectedException -> tr("error.opt.selected", e.option.opt, e.optionGroup.selected)
-            is MissingArgumentException -> tr("error.opt.noArg", e.option.opt)
-            is MissingOptionException -> tr("error.opt.noOption", e.missingOptions.joinToString(", "))
-            else -> return
-        }
-        App.die(msg)
     }
 
     fun processInputs(processor: InputProcessor): Int {
@@ -112,15 +108,15 @@ object SCI : CDelegate(DefaultParser()) {
         Locale.setDefault(SCISettings.appLocale)
         App.translator = App.resourceManager.linguistFor("i18n/app")
 
-        App.pluginManager.isEnable = SCISettings.enablePlugin
-        if (App.pluginManager.isEnable) {
-            App.pluginManager.loader = javaClass.classLoader
-            App.pluginManager.blacklist = SCISettings.pluginBlacklist
+        val pm = App.pluginManager
+        pm.isEnable = SCISettings.enablePlugin
+        if (pm.isEnable) {
+            pm.loader = javaClass.classLoader
+            pm.blacklist = SCISettings.pluginBlacklist
         }
     }
 
     private fun initJem() {
-        epmManager = EpmManager()
     }
 
     private fun initOptions() {
@@ -143,7 +139,7 @@ object SCI : CDelegate(DefaultParser()) {
 
         newOption("v", "version").action { _ ->
             println("SCI for Jem v${Build.VERSION} on ${System.getProperty("os.name")}")
-            println("(C) ${Calendar.getInstance()[Calendar.YEAR]} ${Build.VENDOR}")
+            println("(C) 2014-${Calendar.getInstance()[Calendar.YEAR]} ${Build.VENDOR}")
             App.exit(0)
         }
 
@@ -259,13 +255,13 @@ object SCI : CDelegate(DefaultParser()) {
 interface SCIPlugin : Plugin {
     fun onOpenBook(param: ParserParam) {}
 
-    fun onOpenFailed(param: ParserParam, e: Exception) {}
+    fun onOpenFailed(e: Exception, param: ParserParam) {}
 
-    fun onBookOpened(book: Book) {}
+    fun onBookOpened(book: Book, param: ParserParam?) {}
 
     fun onSaveBook(param: MakerParam) {}
 
-    fun onSaveFailed(param: MakerParam, e: Exception) {}
+    fun onSaveFailed(e: Exception, param: MakerParam) {}
 
     fun onBookSaved(param: MakerParam) {}
 }

@@ -20,10 +20,12 @@ package jem.scj.addon
 
 import jem.scj.app.SCI
 import jem.scj.app.SCISettings
+import mala.cli.SingleFetcher
 import mala.cli.action
 import mala.core.App
 import mala.core.App.tr
 import mala.core.Plugin
+import org.apache.commons.cli.CommandLine
 import org.apache.commons.cli.Option
 
 class AppInspector : Plugin {
@@ -66,5 +68,14 @@ class AppInspector : Plugin {
                     println(plugins.joinToString("\n"))
                     0
                 }
+        SCI.newOption("S")
+                .numberOfArgs(2)
+                .argName(tr("opt.arg.kv"))
+                .action(object : SingleFetcher() {
+                    @Suppress("UNCHECKED_CAST")
+                    override fun init(context: MutableMap<String, Any>, cmd: CommandLine) {
+                        SCISettings.update(cmd.getOptionProperties("S") as Map<String, *>)
+                    }
+                })
     }
 }

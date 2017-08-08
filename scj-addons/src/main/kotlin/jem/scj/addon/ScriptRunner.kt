@@ -20,10 +20,15 @@ package jem.scj.addon
 
 import jclp.log.Log
 import jem.Book
+import jem.epm.util.ParserParam
 import jem.scj.app.SCI
 import jem.scj.app.SCIPlugin
 import jem.scj.app.SCISettings
-import mala.cli.*
+import mala.cli.CDelegate
+import mala.cli.Command
+import mala.cli.RawFetcher
+import mala.cli.ValuesFetcher
+import mala.cli.action
 import mala.core.App
 import mala.core.App.tr
 import org.apache.commons.cli.Option
@@ -74,7 +79,7 @@ class ScriptRunner : ValuesFetcher("R"), SCIPlugin, Command {
         return code
     }
 
-    override fun onBookOpened(book: Book) {
+    override fun onBookOpened(book: Book, param: ParserParam?) {
         val file = File(SCI.context["book-filter"]?.toString() ?: return)
         if (!file.exists()) {
             App.error(tr("error.misc.noFile", file))

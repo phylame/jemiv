@@ -18,22 +18,21 @@
 
 package jem.crawler;
 
+import java.io.IOException;
+
 import jem.Book;
-import jem.Chapter;
 import jem.util.JemException;
 import jem.util.TypedConfig;
-
-import java.io.IOException;
 
 public interface Crawler {
     /**
      * Fetches a book from specified URL.
      *
-     * @param url    the URL to be fetched
+     * @param url the URL to be fetched
      * @param config config for fetching book
      * @return the fetched book
      * @throws JemException if an error occurs when fetching
-     * @throws IOException  if an I/O error occurs
+     * @throws IOException if an I/O error occurs
      */
     Book getBook(String url, TypedConfig config) throws JemException, IOException;
 
@@ -43,13 +42,12 @@ public interface Crawler {
      * This method will be invoked by {@code CrawlerText} when getting text.
      * </p>
      *
-     * @param url     the URL to be fetched
-     * @param config  config for fetching text
-     * @param chapter the chapter containing this text
+     * @param url the URL to be fetched
+     * @param config config for fetching text
      * @return the text string of chapter
      * @throws JemException if an error occurs when fetching
-     * @throws IOException  if an I/O error occurs
+     * @throws IOException if an I/O error occurs
      * @see jem.crawler.CrawlerText
      */
-    String getText(String url, TypedConfig config, Chapter chapter) throws JemException, IOException;
+    String getText(String url, TypedConfig config) throws JemException, IOException;
 }

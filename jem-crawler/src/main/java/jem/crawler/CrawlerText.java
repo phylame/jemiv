@@ -18,6 +18,9 @@
 
 package jem.crawler;
 
+import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+
 import jclp.log.Level;
 import jclp.log.Log;
 import jclp.util.AsyncTask;
@@ -27,9 +30,8 @@ import jem.util.TypedConfig;
 import jem.util.text.AbstractText;
 import jem.util.text.Texts;
 import lombok.NonNull;
-
-import java.io.IOException;
-import java.util.concurrent.ExecutorService;
+import lombok.SneakyThrows;
+import lombok.val;
 
 public class CrawlerText extends AbstractText {
     private static final String TAG = "CrawlerText";
@@ -41,7 +43,20 @@ public class CrawlerText extends AbstractText {
     private final AsyncTask<String> task = new AsyncTask<String>() {
         @Override
         protected String handleGet() throws JemException, IOException {
-            return crawler.getText(url, config, chapter);
+            String text;
+            try {
+                text = crawler.getText(url, config);
+            } catch (Exception e) {
+                if (Log.isEnable(Level.DEBUG)) {
+                    Log.d(TAG, "cannot fetch text from " + url, e);
+                }
+                text = "";
+            }
+            val listener = config.get("crawler.listener", CrawlerListener.class, null);
+            if (listener != null) {
+                listener.textFetched(chapter, url);
+            }
+            return text;
         }
     };
 
@@ -58,14 +73,8 @@ public class CrawlerText extends AbstractText {
     }
 
     @Override
+    @SneakyThrows(Exception.class)
     public String toString() {
-        try {
-            return task.get();
-        } catch (Exception e) {
-            if (Log.isEnable(Level.DEBUG)) {
-                Log.d(TAG, "cannot fetch text from " + url, e);
-            }
-            return "";
-        }
+        return task.get();
     }
 }

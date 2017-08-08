@@ -59,7 +59,7 @@ public abstract class AbstractParser<I extends Closeable> implements FileParser 
             IOUtils.closeQuietly(input);
             throw e;
         }
-        book.registerCleanup(new InputCleaner(input));
+        book.addCleanup(new InputCleaner(input));
         return book;
     }
 }
