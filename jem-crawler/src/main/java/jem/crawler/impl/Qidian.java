@@ -18,27 +18,27 @@
 
 package jem.crawler.impl;
 
-import jclp.io.IOUtils;
-import jem.Book;
-import jem.Chapter;
-import jem.crawler.CrawlerBook;
-import jem.crawler.CrawlerText;
-import jem.crawler.M;
-import jem.crawler.ReusedCrawler;
-import jem.util.JemException;
-import jem.util.TypedConfig;
-import lombok.val;
+import java.io.IOException;
+import java.util.Set;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 
-import java.io.IOException;
-import java.util.Set;
+import jclp.io.IOUtils;
+import jem.Book;
+import jem.Chapter;
+import jem.crawler.*;
+import jem.util.JemException;
+import jem.util.TypedConfig;
+import lombok.val;
 
 import static jclp.util.CollectionUtils.setOf;
 import static jclp.util.StringUtils.trimmed;
 import static jem.Attributes.*;
-import static jem.crawler.SoupUtils.*;
+import static jem.crawler.SoupUtils.firstText;
+import static jem.crawler.SoupUtils.queryLink;
+import static jem.crawler.SoupUtils.queryText;
 
 public class Qidian extends ReusedCrawler {
     @Override
@@ -76,8 +76,10 @@ public class Qidian extends ReusedCrawler {
             val section = book.newChapter(firstText(div.select("h3").first()));
             setValue(section, WORDS, queryText(div, "h3 cite"));
             for (val a : div.select("li a")) {
+                val url = a.absUrl("href");
                 val chapter = section.newChapter(trimmed(a.text()));
-                chapter.setText(new CrawlerText(a.absUrl("href"), this, config, chapter));
+                chapter.setText(new CrawlerText(url, this, config, chapter));
+                setValue(chapter, "source", url);
             }
         }
     }
@@ -98,7 +100,9 @@ public class Qidian extends ReusedCrawler {
                 json = (JSONObject) ch;
                 val chapter = section.newChapter(json.getString("cN"));
                 setWords(chapter, json.getInt("cnt"));
-                val text = new CrawlerText(baseURL + '/' + json.getInt("id"), this, config, chapter);
+                val url = baseURL + '/' + json.getInt("id");
+                val text = new CrawlerText(url, this, config, chapter);
+                setValue(chapter, "source", url);
                 chapter.setText(text);
             }
         }

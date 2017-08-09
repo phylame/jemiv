@@ -1,21 +1,21 @@
 package jem.crawler.impl;
 
-import jclp.util.CollectionUtils;
-import jclp.util.DateUtils;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Set;
+
+import org.json.JSONObject;
+import org.jsoup.helper.StringUtil;
+import org.jsoup.select.Elements;
+
+import jclp.function.BiFunction;
+import jclp.util.*;
 import jem.Book;
 import jem.crawler.*;
 import jem.util.JemException;
 import jem.util.TypedConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.json.JSONObject;
-import org.jsoup.helper.StringUtil;
-import org.jsoup.select.Elements;
-
-import java.io.IOException;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.Set;
 
 import static jclp.util.StringUtils.*;
 import static jem.Attributes.*;
@@ -66,8 +66,10 @@ public class ZongHeng extends ReusedCrawler {
         while (titles.hasNext()) {
             val section = book.newChapter(trimmed(titles.next().text()));
             for (val a : sections.next().select("a")) {
+                val cu = a.absUrl("href");
                 val chapter = section.newChapter(trimmed(a.text()));
-                chapter.setText(new CrawlerText(a.absUrl("href"), this, config, chapter));
+                chapter.setText(new CrawlerText(cu, this, config, chapter));
+                setValue(chapter, "source", cu);
             }
         }
     }
@@ -90,23 +92,24 @@ public class ZongHeng extends ReusedCrawler {
     }
 
     private static final String TEXT_PATTERN = "http://m.zongheng.com/h5/ajax/chapter?bookId=%s&chapterId=%s";
-    private static final String PARAGRAPH_END = "。？”！…※）》】";
 
     @Override
     protected int fetchPage(int page, Object arg) throws IOException {
         val data = (Local) arg;
         val pageSize = data.config.getInt("crawler.zongheng.pageSize", 180);
-        String url = data.url + String.format("/list?h5=1&bookId=%s&pageNum=%s&pageSize=%s&asc=0", data.bookId, page, pageSize);
+        String url = data.url
+                + String.format("/list?h5=1&bookId=%s&pageNum=%s&pageSize=%s&asc=0", data.bookId, page, pageSize);
         val json = getJson(url, ((Local) arg).config).optJSONObject("chapterlist");
         if (json == null) {
             return 0;
         }
         val book = data.book;
         for (val o : json.getJSONArray("chapters")) {
-            val jo = (JSONObject) o;
-            val chapter = book.newChapter(jo.getString("chapterName"));
-            url = String.format(TEXT_PATTERN, data.bookId, jo.getInt("chapterId"));
+            val item = (JSONObject) o;
+            val chapter = book.newChapter(trimmed(item.getString("chapterName")));
+            url = String.format(TEXT_PATTERN, data.bookId, item.getInt("chapterId"));
             chapter.setText(new CrawlerText(url, this, data.config, chapter));
+            setValue(chapter, "source", url);
         }
         if (data.isFirstPage) {
             data.isFirstPage = false;
@@ -127,42 +130,41 @@ public class ZongHeng extends ReusedCrawler {
 
     @Override
     public String getText(String url, TypedConfig config) throws JemException, IOException {
-        if (!url.contains("http://m.zongheng.com/")) {
+        if (!url.contains("m.zongheng.com/")) {
             return queryText(getSoup(url, config), "div#readerFs p", System.lineSeparator());
         }
-        val sb = new StringBuilder();
-        val lines = new LinkedList<String>();
+        val sb = new StringBuilder(1200);
         while (true) {
             JSONObject json = getJson(url, config);
             if (json.getJSONObject("ajaxResult").getInt("code") != 1) {
                 break;
             }
             json = json.getJSONObject("result");
-            val parts = json.getString("content").split("</p><p>");
-            for (int i = 0, end = parts.length; i != end; ++i) {
-                String str = parts[i];
-                if (str.isEmpty()) {
-                    continue;
-                }
-                if (i == 0) {
-                    str = sb.append(str.substring(3)).toString();
-                    sb.setLength(0);
-                    if (str.isEmpty()) {
-                        continue;
-                    }
-                    lines.add(str);
-                } else if (i == end - 2 && !PARAGRAPH_END.contains(str.substring(str.length() - 1))) {
-                    sb.append(str);
-                } else if (i != end - 1) { // tip in website
-                    lines.add(str);
-                }
-            }
+            val text = new Sequence<>(ArrayUtils.iterator(json.getString("content").split("</p><p>")))
+                    .mapIndexed(new BiFunction<String, Integer, String>() {
+                        @Override
+                        public String apply(String str, Integer index) {
+                            if (str.startsWith("<p>")) {
+                                return stripped(str, "<p/>");
+                            } else if (str.endsWith("</p>")) {
+                                if (!str.startsWith("（本章")) {
+                                    return stripped(str, "<p/>");
+                                } else {
+                                    return null;
+                                }
+                            }
+                            return str;
+                        }
+                    })
+                    .filter(SoupUtils.stringNotEmpty)
+                    .join(System.lineSeparator());
+            sb.append(text).append(System.lineSeparator());
             if (json.getInt("pageCount") == json.getInt("chapterNum")) {
                 break;
             }
             url = String.format(TEXT_PATTERN, config.getString("bookId", ""), json.getString("nextChapterId"));
         }
-        return join(System.lineSeparator(), lines);
+        return sb.toString();
     }
 
     @Override

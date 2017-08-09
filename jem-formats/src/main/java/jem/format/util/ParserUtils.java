@@ -72,7 +72,7 @@ public final class ParserUtils {
         }
     }
 
-    public static String requiredAttribute(XmlPullParser xpp, String name) throws ParserException {
+    public static String getAttribute(XmlPullParser xpp, String name) throws ParserException {
         val value = xpp.getAttributeValue(null, name);
         if (value == null) {
             throw error("err.parser.noAttribute", name);

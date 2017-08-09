@@ -18,25 +18,6 @@
 
 package jem.format.pmab;
 
-import static jclp.util.StringUtils.firstPartOf;
-import static jclp.util.StringUtils.isEmpty;
-import static jclp.util.StringUtils.secondPartOf;
-import static jclp.util.StringUtils.valueOfName;
-import static jem.epm.util.VdmUtils.getStream;
-import static jem.format.util.ParserUtils.error;
-import static jem.format.util.ParserUtils.parseDate;
-import static jem.format.util.ParserUtils.parseDouble;
-import static jem.format.util.ParserUtils.parseInteger;
-import static jem.format.util.ParserUtils.parseLocale;
-import static jem.format.util.ParserUtils.requiredAttribute;
-import static jem.util.Variants.BOOLEAN;
-import static jem.util.Variants.DATETIME;
-import static jem.util.Variants.INTEGER;
-import static jem.util.Variants.LOCALE;
-import static jem.util.Variants.REAL;
-import static jem.util.Variants.STRING;
-import static jem.util.Variants.TEXT;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,6 +41,11 @@ import jem.util.text.Text;
 import jem.util.text.Texts;
 import lombok.SneakyThrows;
 import lombok.val;
+
+import static jclp.util.StringUtils.*;
+import static jem.epm.util.VdmUtils.getStream;
+import static jem.format.util.ParserUtils.*;
+import static jem.util.Variants.*;
 
 /**
  * Epm parser for PMAB.
@@ -123,7 +109,7 @@ public class PmabParser extends VdmParser implements PMAB {
         boolean hasText = false;
         switch (tag) {
         case "item": {
-            data.itemName = requiredAttribute(xpp, "name");
+            data.itemName = getAttribute(xpp, "name");
             data.itemType = xpp.getAttributeValue(null, "type");
             hasText = true;
         }
@@ -135,7 +121,7 @@ public class PmabParser extends VdmParser implements PMAB {
             data.values = data.book.getExtensions();
         break;
         case "meta":
-            data.metadata.put(requiredAttribute(xpp, "name"), requiredAttribute(xpp, "value"));
+            data.metadata.put(getAttribute(xpp, "name"), getAttribute(xpp, "value"));
         break;
         case "head":
             data.metadata = new HashMap<>();
@@ -200,7 +186,7 @@ public class PmabParser extends VdmParser implements PMAB {
             data.newChapter();
         break;
         case "item": {
-            data.itemName = requiredAttribute(xpp, "name");
+            data.itemName = getAttribute(xpp, "name");
             data.itemType = xpp.getAttributeValue(null, "type");
             hasText = true;
         }
@@ -242,7 +228,7 @@ public class PmabParser extends VdmParser implements PMAB {
     }
 
     private int getVersion(XmlPullParser xpp, String error) throws ParserException {
-        val str = requiredAttribute(xpp, "version");
+        val str = getAttribute(xpp, "version");
         switch (str) {
         case "3.0":
             return 3;
