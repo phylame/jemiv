@@ -103,7 +103,6 @@ public abstract class AbstractCrawler implements Crawler {
         return new JSONObject(IOUtils.toString(openStream(conn), encoding));
     }
 
-
     private InputStream openStream(URLConnection conn) throws IOException {
         val encoding = conn.getHeaderField("Content-Encoding");
         return "gzip".equalsIgnoreCase(encoding)
