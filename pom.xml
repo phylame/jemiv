@@ -45,7 +45,7 @@
 
     <properties>
         <xpp3.version>1.1.4c</xpp3.version>
-        <commons.version>2.1.1</commons.version>
+        <commons.version>2.2.0</commons.version>
     </properties>
 
     <modules>

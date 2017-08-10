@@ -34,7 +34,7 @@ public class VdmFlob extends AbstractFlob {
 
     public VdmFlob(@NonNull VdmReader reader, String name, String mime) {
         super(mime);
-        entry = reader.entryFor(name);
+        entry = reader.getEntry(name);
         requireNotNull(entry, "no such entry %s", name);
         this.reader = reader;
     }
@@ -46,7 +46,7 @@ public class VdmFlob extends AbstractFlob {
 
     @Override
     public InputStream openStream() throws IOException {
-        return reader.streamFor(entry);
+        return reader.getInputStream(entry);
     }
 
     @Override

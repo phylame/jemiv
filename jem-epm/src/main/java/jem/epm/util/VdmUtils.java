@@ -19,43 +19,31 @@
 package jem.epm.util;
 
 import jclp.io.IOUtils;
-import jclp.vdm.*;
+import jclp.vdm.VdmManager;
+import jclp.vdm.VdmReader;
+import jclp.vdm.VdmWriter;
+import jclp.vdm.file.FileVdmReader;
+import jclp.vdm.zip.ZipVdmReader;
 import jem.util.flob.Flob;
 import jem.util.text.Text;
 import lombok.NonNull;
 import lombok.val;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
 
 public final class VdmUtils {
     private VdmUtils() {
     }
 
-    public static VdmWriter openWriter(File file, String type) throws IOException {
-        switch (type) {
-            case "dir":
-                return new FileVdmWriter(file);
-            case "zip":
-                return new ZipVdmWriter(new ZipOutputStream(new FileOutputStream(file)));
-            default:
-                return null;
-        }
+    public static VdmWriter openWriter(Object output, String type) throws IOException {
+        return VdmManager.getWriter(type, output);
     }
 
-    public static VdmReader openReader(File file, String type) throws IOException {
-        switch (type) {
-            case "dir":
-                return new FileVdmReader(file);
-            case "zip":
-                return new ZipVdmReader(new ZipFile(file));
-            default:
-                return null;
-        }
+    public static VdmReader openReader(Object input, String type) throws IOException {
+        return VdmManager.getReader(type, input);
     }
 
     public static VdmReader openReader(File file) throws IOException {
@@ -63,11 +51,11 @@ public final class VdmUtils {
     }
 
     public static InputStream getStream(@NonNull VdmReader reader, String name) throws IOException {
-        val item = reader.entryFor(name);
-        if (item == null) {
+        val entry = reader.getEntry(name);
+        if (entry == null) {
             throw new IOException(M.translator().tr("err.vdm.noEntry", name, reader.getName()));
         }
-        return reader.streamFor(item);
+        return reader.getInputStream(entry);
     }
 
     public static String getText(VdmReader reader, String name, String encoding) throws IOException {
@@ -78,22 +66,22 @@ public final class VdmUtils {
 
     public static void write(VdmWriter writer, String name, String str, String encoding) throws IOException {
         val entry = writer.newEntry(name);
-        writer.begin(entry)
+        writer.putEntry(entry)
                 .write(encoding == null ? str.getBytes() : str.getBytes(encoding));
-        writer.end(entry);
+        writer.closeEntry(entry);
     }
 
     public static void write(VdmWriter writer, String name, Flob flob) throws IOException {
         val entry = writer.newEntry(name);
-        flob.writeTo(writer.begin(entry));
-        writer.end(entry);
+        flob.writeTo(writer.putEntry(entry));
+        writer.closeEntry(entry);
     }
 
     public static void write(VdmWriter writer, String name, Text text, String encoding) throws IOException {
         val entry = writer.newEntry(name);
-        val output = IOUtils.writerFor(writer.begin(entry), encoding);
+        val output = IOUtils.writerFor(writer.putEntry(entry), encoding);
         text.writeTo(output);
         output.flush();
-        writer.end(entry);
+        writer.closeEntry(entry);
     }
 }
