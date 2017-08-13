@@ -95,10 +95,10 @@ public class Qidian extends ReusedCrawler {
         Chapter section;
         for (val se : parts) {
             JSONObject json = (JSONObject) se;
-            section = book.newChapter(json.getString("vN"));
+            section = book.newChapter(trimmed(json.getString("vN")));
             for (val ch : json.getJSONArray("cs")) {
                 json = (JSONObject) ch;
-                val chapter = section.newChapter(json.getString("cN"));
+                val chapter = section.newChapter(trimmed(json.getString("cN")));
                 setWords(chapter, json.getInt("cnt"));
                 val url = baseURL + '/' + json.getInt("id");
                 val text = new CrawlerText(url, this, config, chapter);

@@ -1,21 +1,23 @@
 package jem.crawler.impl;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.Set;
-
-import org.json.JSONObject;
-import org.jsoup.helper.StringUtil;
-import org.jsoup.select.Elements;
-
 import jclp.function.BiFunction;
-import jclp.util.*;
+import jclp.util.ArrayUtils;
+import jclp.util.CollectionUtils;
+import jclp.util.DateUtils;
+import jclp.util.Sequence;
 import jem.Book;
 import jem.crawler.*;
 import jem.util.JemException;
 import jem.util.TypedConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.json.JSONObject;
+import org.jsoup.helper.StringUtil;
+import org.jsoup.select.Elements;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.Set;
 
 import static jclp.util.StringUtils.*;
 import static jem.Attributes.*;
@@ -54,7 +56,7 @@ public class ZongHeng extends ReusedCrawler {
     private String getMeta(Elements base, String name) {
         val key = name.startsWith("novel") ? "name=og:" : "property=og:";
         val meta = base.select("meta[" + key + name + "]").first();
-        return meta != null ? meta.attr("content") : "";
+        return meta != null ? trimmed(meta.attr("content")) : "";
     }
 
     private void fetchContentsPC(Book book, String url, TypedConfig config) throws JemException, IOException {
@@ -97,8 +99,7 @@ public class ZongHeng extends ReusedCrawler {
     protected int fetchPage(int page, Object arg) throws IOException {
         val data = (Local) arg;
         val pageSize = data.config.getInt("crawler.zongheng.pageSize", 180);
-        String url = data.url
-                + String.format("/list?h5=1&bookId=%s&pageNum=%s&pageSize=%s&asc=0", data.bookId, page, pageSize);
+        String url = data.url + String.format("/list?h5=1&bookId=%s&pageNum=%s&pageSize=%s&asc=0", data.bookId, page, pageSize);
         val json = getJson(url, ((Local) arg).config).optJSONObject("chapterlist");
         if (json == null) {
             return 0;

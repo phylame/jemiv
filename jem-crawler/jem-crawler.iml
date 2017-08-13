@@ -13,7 +13,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="jem-epm" />
     <orderEntry type="module" module-name="jem-core" />
-    <orderEntry type="library" name="Maven: pw.phylame.util:commons:2.1.1" level="project" />
+    <orderEntry type="library" name="Maven: pw.phylame.util:commons:2.2.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.projectlombok:lombok:1.16.16" level="project" />
     <orderEntry type="library" name="Maven: org.json:json:20170516" level="project" />
     <orderEntry type="library" name="Maven: org.jsoup:jsoup:1.10.3" level="project" />

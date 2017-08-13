@@ -22,15 +22,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>pw.phylame.jem</groupId>
         <artifactId>jem-project</artifactId>
-        <relativePath>../pom.xml</relativePath>
+        <groupId>pw.phylame.jem</groupId>
         <version>4.0</version>
     </parent>
 
-    <name>SCJ App</name>
-    <artifactId>scj</artifactId>
-    <description>Simple CLI for Jem</description>
+    <name>Imabw Editor</name>
+    <artifactId>imabw</artifactId>
+    <description>The imabw ebook editor</description>
 
     <dependencies>
         <dependency>
@@ -57,7 +56,7 @@
         </dependency>
         <dependency>
             <groupId>pw.phylame.mala</groupId>
-            <artifactId>mala-cli</artifactId>
+            <artifactId>mala-ixin</artifactId>
             <version>${mala.version}</version>
         </dependency>
     </dependencies>
