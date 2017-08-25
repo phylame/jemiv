@@ -47,16 +47,18 @@ object SCISettings : AppSettings("app.cfg") {
 
     var termWidth by map(80, "app.termWidth")
 
-    var pluginBlacklist: Collection<String> get() {
-        val file = File(App.pathOf("blacklist"))
-        return if (file.exists()) file.readLines() else emptySet()
-    } set(paths) {
-        if (App.initAppHome()) {
-            File(App.pathOf("blacklist")).writeText(paths.joinToString("\n"))
-        } else {
-            App.error("cannot create settings home: ${App.pathOf("settings")}")
+    var pluginBlacklist: Collection<String>
+        get() {
+            val file = File(App.pathOf("blacklist"))
+            return if (file.exists()) file.readLines() else emptySet()
         }
-    }
+        set(paths) {
+            if (App.initAppHome()) {
+                File(App.pathOf("blacklist")).writeText(paths.joinToString("\n"))
+            } else {
+                App.error("cannot create settings home: ${App.pathOf("settings")}")
+            }
+        }
 
     var enableEpm by map(true, "jem.enableEpm")
 
@@ -70,7 +72,8 @@ object SCISettings : AppSettings("app.cfg") {
 
     var tocIndent by map("\t", "sci.view.tocIndent")
 
-    var tocNames get() = (get("sci.view.tocNames") as? String)?.split(",") ?: listOf(TITLE, COVER)
+    var tocNames
+        get() = (get("sci.view.tocNames") as? String)?.split(",") ?: listOf(TITLE, COVER)
         set(value) {
             set("sci.view.tocNames", value.joinToString(","))
         }

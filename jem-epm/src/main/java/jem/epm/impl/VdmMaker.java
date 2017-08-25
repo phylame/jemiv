@@ -18,15 +18,15 @@
 
 package jem.epm.impl;
 
-import java.io.File;
-import java.io.IOException;
-
 import jclp.util.StringUtils;
 import jclp.vdm.VdmWriter;
 import jem.epm.util.M;
 import jem.epm.util.VdmUtils;
 import jem.util.TypedConfig;
 import lombok.val;
+
+import java.io.File;
+import java.io.IOException;
 
 public abstract class VdmMaker extends AbstractMaker<VdmWriter> {
     @Override

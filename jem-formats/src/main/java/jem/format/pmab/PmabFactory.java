@@ -18,14 +18,14 @@
 
 package jem.format.pmab;
 
-import java.util.Set;
-
 import jclp.function.Provider;
 import jclp.util.CollectionUtils;
 import jclp.value.Lazy;
 import jem.epm.Maker;
 import jem.epm.Parser;
 import jem.epm.impl.AbstractFactory;
+
+import java.util.Set;
 
 public class PmabFactory extends AbstractFactory {
     private final Lazy<Parser> parser = new Lazy<>(new Provider<Parser>() {

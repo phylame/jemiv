@@ -24,11 +24,7 @@ import jem.epm.util.ParserParam
 import jem.scj.app.SCI
 import jem.scj.app.SCIPlugin
 import jem.scj.app.SCISettings
-import mala.cli.CDelegate
-import mala.cli.Command
-import mala.cli.RawFetcher
-import mala.cli.ValuesFetcher
-import mala.cli.action
+import mala.cli.*
 import mala.core.App
 import mala.core.App.tr
 import org.apache.commons.cli.Option

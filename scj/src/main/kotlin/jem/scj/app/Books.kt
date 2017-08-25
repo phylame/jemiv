@@ -22,9 +22,9 @@ import jclp.log.Log
 import jclp.setting.MapSettings
 import jem.Attributes
 import jem.Book
-import jem.kotlin.set
 import jem.epm.util.MakerParam
 import jem.epm.util.ParserParam
+import jem.kotlin.set
 import jem.util.JemException
 import jem.util.Variants
 import mala.core.App

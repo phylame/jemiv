@@ -24,67 +24,80 @@ import jem.util.flob.Flob
 import jem.util.text.Text
 import java.util.*
 
-var Chapter.title: String get() = getTitle(this)
+var Chapter.title: String
+    get() = getTitle(this)
     set(value) {
         setTitle(this, value)
     }
 
-var Chapter.cover: Flob? get() = getCover(this)
+var Chapter.cover: Flob?
+    get() = getCover(this)
     set(value) {
         setCover(this, value)
     }
 
-var Chapter.intro: Text? get() = getIntro(this)
+var Chapter.intro: Text?
+    get() = getIntro(this)
     set(value) {
         setIntro(this, value)
     }
 
-var Chapter.words: String get() = getWords(this)
+var Chapter.words: String
+    get() = getWords(this)
     set(value) {
         setWords(this, value)
     }
 
-var Chapter.author: String get() = getAuthor(this)
+var Chapter.author: String
+    get() = getAuthor(this)
     set(value) {
         setAuthor(this, value)
     }
 
-var Chapter.date: Date? get() = getDate(this)
+var Chapter.date: Date?
+    get() = getDate(this)
     set(value) {
         setDate(this, value)
     }
 
-var Chapter.pubdate: Date? get() = getPubdate(this)
+var Chapter.pubdate: Date?
+    get() = getPubdate(this)
     set(value) {
         setPubdate(this, value)
     }
 
-var Chapter.genre: String get() = getGenre(this)
+var Chapter.genre: String
+    get() = getGenre(this)
     set(value) {
         setGenre(this, value)
     }
 
-var Chapter.language: Locale? get() = getLanguage(this)
+var Chapter.language: Locale?
+    get() = getLanguage(this)
     set(value) {
         setLanguage(this, value)
     }
 
-var Chapter.publisher: String get() = getPublisher(this)
+var Chapter.publisher: String
+    get() = getPublisher(this)
     set(value) {
         setPublisher(this, value)
     }
 
-var Chapter.rights: String get() = getRights(this)
+var Chapter.rights: String
+    get() = getRights(this)
     set(value) {
         setRights(this, value)
     }
 
-var Chapter.state: String get() = getState(this)
+var Chapter.state: String
+    get() = getState(this)
     set(value) {
         setState(this, value)
     }
 
-var Chapter.vendor: String get() = getVendor(this)
+var Chapter.vendor: String
+    get() = getVendor(this)
     set(value) {
         setVendor(this, value)
     }

@@ -27,11 +27,7 @@ import jem.epm.EpmManager
 import jem.epm.util.MakerParam
 import jem.epm.util.ParserParam
 import jem.util.Build
-import mala.cli.CDelegate
-import mala.cli.PropertiesFetcher
-import mala.cli.RawFetcher
-import mala.cli.action
-import mala.cli.group
+import mala.cli.*
 import mala.core.App
 import mala.core.App.tr
 import mala.core.AppVerbose
@@ -43,6 +39,10 @@ import org.apache.commons.cli.Option
 import org.apache.commons.cli.OptionGroup
 import java.util.Calendar
 import java.util.Locale
+import kotlin.collections.HashMap
+import kotlin.collections.MutableMap
+import kotlin.collections.forEach
+import kotlin.collections.joinToString
 
 fun main(args: Array<String>) {
     App.run(SCI, args)
@@ -56,16 +56,20 @@ object SCI : CDelegate(DefaultParser()) {
     override val name = "scj"
 
     @Suppress("UNCHECKED_CAST")
-    val inArguments get() = context["p"] as? MutableMap<String, Any> ?: HashMap()
+    val inArguments
+        get() = context["p"] as? MutableMap<String, Any> ?: HashMap()
 
     @Suppress("UNCHECKED_CAST")
-    val outArguments get() = context["m"] as? MutableMap<String, Any> ?: HashMap()
+    val outArguments
+        get() = context["m"] as? MutableMap<String, Any> ?: HashMap()
 
     @Suppress("UNCHECKED_CAST")
-    val outAttributes get() = context["a"] as? MutableMap<String, Any> ?: HashMap()
+    val outAttributes
+        get() = context["a"] as? MutableMap<String, Any> ?: HashMap()
 
     @Suppress("UNCHECKED_CAST")
-    val outExtensions get() = context["e"] as? MutableMap<String, Any> ?: HashMap()
+    val outExtensions
+        get() = context["e"] as? MutableMap<String, Any> ?: HashMap()
 
     val outputFormat get() = context["t"]?.toString() ?: SCISettings.outputFormat
 

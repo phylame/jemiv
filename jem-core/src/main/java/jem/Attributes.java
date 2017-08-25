@@ -18,22 +18,6 @@
 
 package jem;
 
-import static jclp.util.CollectionUtils.propertiesFor;
-import static jclp.util.CollectionUtils.update;
-import static jclp.util.StringUtils.isNotEmpty;
-import static jclp.util.StringUtils.join;
-import static jclp.util.Validate.require;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
 import jclp.log.Log;
 import jem.util.M;
 import jem.util.VariantMap;
@@ -44,6 +28,15 @@ import jem.util.text.Text;
 import jem.util.text.Texts;
 import lombok.NonNull;
 import lombok.val;
+
+import java.io.IOException;
+import java.util.*;
+
+import static jclp.util.CollectionUtils.propertiesFor;
+import static jclp.util.CollectionUtils.update;
+import static jclp.util.StringUtils.isNotEmpty;
+import static jclp.util.StringUtils.join;
+import static jclp.util.Validate.require;
 
 /**
  * Constants and utilities for chapter attributes.
@@ -141,7 +134,7 @@ public final class Attributes {
      * Gets attribute value for specified attribute name of specified chapter.
      *
      * @param chapter the chapter to be retrieved attributes
-     * @param name the attribute name
+     * @param name    the attribute name
      * @return the attribute value, or {@literal null} if no attribute found
      * @throws NullPointerException if the chapter or name is null
      */
@@ -153,10 +146,10 @@ public final class Attributes {
      * Gets string value for specified attribute of specified chapter.
      *
      * @param chapter the chapter to be retrieved attributes
-     * @param name the attribute name
+     * @param name    the attribute name
      * @return the string value, or {@literal ""} if no attribute found
      * @throws NullPointerException if the chapter or name is null
-     * @throws ClassCastException if the attribute value is not a string
+     * @throws ClassCastException   if the attribute value is not a string
      */
     public static String getString(@NonNull Chapter chapter, String name) {
         return chapter.getAttributes().get(name, "");
@@ -166,10 +159,10 @@ public final class Attributes {
      * Gets string values for specified attribute of specified chapter.
      *
      * @param chapter the chapter to be retrieved attributes
-     * @param name the attribute name
+     * @param name    the attribute name
      * @return the string values, or {@literal null} if no attribute found
      * @throws NullPointerException if the chapter or name is null
-     * @throws ClassCastException if the attribute value is not a string
+     * @throws ClassCastException   if the attribute value is not a string
      */
     public static Collection<String> getValues(@NonNull Chapter chapter, String name) {
         val value = getString(chapter, name);
@@ -180,8 +173,8 @@ public final class Attributes {
      * Sets specified value for specified attribute name of specified chapter.
      *
      * @param chapter the chapter to be set attributes
-     * @param name the attribute name
-     * @param value the new attribute value
+     * @param name    the attribute name
+     * @param value   the new attribute value
      * @throws NullPointerException if the chapter, name or value is null
      */
     public static void setValue(@NonNull Chapter chapter, String name, Object value) {
@@ -192,12 +185,12 @@ public final class Attributes {
      * Sets specified values for specified attribute name of specified chapter.
      *
      * @param chapter the chapter to be set attributes
-     * @param name the attribute name
-     * @param values the new attribute values
+     * @param name    the attribute name
+     * @param values  the new attribute values
      * @throws NullPointerException if the chapter, name or values is null
      */
     public static void setValues(@NonNull Chapter chapter, String name,
-            @NonNull Collection<? extends CharSequence> values) {
+                                 @NonNull Collection<? extends CharSequence> values) {
         setValue(chapter, name, join(VALUES_SEPARATOR, values.iterator()));
     }
 

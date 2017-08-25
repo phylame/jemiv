@@ -18,14 +18,6 @@
 
 package jem.format.pmab;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
-
 import jclp.vdm.VdmReader;
 import jem.Attributes;
 import jem.Book;
@@ -41,6 +33,13 @@ import jem.util.text.Text;
 import jem.util.text.Texts;
 import lombok.SneakyThrows;
 import lombok.val;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static jclp.util.StringUtils.*;
 import static jem.epm.util.VdmUtils.getStream;
@@ -76,26 +75,26 @@ public class PmabParser extends VdmParser implements PMAB {
             int event = xpp.getEventType();
             do {
                 switch (event) {
-                case XmlPullParser.START_TAG: {
-                    val tag = xpp.getName();
-                    if (version != 0) {
-                        hasText = startPbm(tag, data);
-                    } else if (tag.equals("pbm")) {
-                        version = getVersion(xpp, "pmab.parse.unsupportedPBM");
+                    case XmlPullParser.START_TAG: {
+                        val tag = xpp.getName();
+                        if (version != 0) {
+                            hasText = startPbm(tag, data);
+                        } else if (tag.equals("pbm")) {
+                            version = getVersion(xpp, "pmab.parse.unsupportedPBM");
+                        }
                     }
-                }
-                break;
-                case XmlPullParser.TEXT: {
-                    if (hasText) {
-                        sb.append(xpp.getText());
+                    break;
+                    case XmlPullParser.TEXT: {
+                        if (hasText) {
+                            sb.append(xpp.getText());
+                        }
                     }
-                }
-                break;
-                case XmlPullParser.END_TAG: {
-                    endPbm(xpp.getName(), sb, data);
-                    sb.setLength(0);
-                }
-                break;
+                    break;
+                    case XmlPullParser.END_TAG: {
+                        endPbm(xpp.getName(), sb, data);
+                        sb.setLength(0);
+                    }
+                    break;
                 }
                 event = xpp.next();
             } while (event != XmlPullParser.END_DOCUMENT);
@@ -108,24 +107,24 @@ public class PmabParser extends VdmParser implements PMAB {
         val xpp = data.xpp;
         boolean hasText = false;
         switch (tag) {
-        case "item": {
-            data.itemName = getAttribute(xpp, "name");
-            data.itemType = xpp.getAttributeValue(null, "type");
-            hasText = true;
-        }
-        break;
-        case "attributes":
-            data.values = data.book.getAttributes();
-        break;
-        case "extensions":
-            data.values = data.book.getExtensions();
-        break;
-        case "meta":
-            data.metadata.put(getAttribute(xpp, "name"), getAttribute(xpp, "value"));
-        break;
-        case "head":
-            data.metadata = new HashMap<>();
-        break;
+            case "item": {
+                data.itemName = getAttribute(xpp, "name");
+                data.itemType = xpp.getAttributeValue(null, "type");
+                hasText = true;
+            }
+            break;
+            case "attributes":
+                data.values = data.book.getAttributes();
+                break;
+            case "extensions":
+                data.values = data.book.getExtensions();
+                break;
+            case "meta":
+                data.metadata.put(getAttribute(xpp, "name"), getAttribute(xpp, "value"));
+                break;
+            case "head":
+                data.metadata = new HashMap<>();
+                break;
         }
         return hasText;
     }
@@ -146,30 +145,30 @@ public class PmabParser extends VdmParser implements PMAB {
             int event = xpp.getEventType();
             do {
                 switch (event) {
-                case XmlPullParser.START_TAG: {
-                    val tag = xpp.getName();
-                    if (version != 0) {
-                        hasText = startPbc(tag, data);
-                    } else if (tag.equals("pbc")) {
-                        version = getVersion(xpp, "pmab.parse.unsupportedPBC");
+                    case XmlPullParser.START_TAG: {
+                        val tag = xpp.getName();
+                        if (version != 0) {
+                            hasText = startPbc(tag, data);
+                        } else if (tag.equals("pbc")) {
+                            version = getVersion(xpp, "pmab.parse.unsupportedPBC");
+                        }
                     }
-                }
-                break;
-                case XmlPullParser.TEXT: {
-                    if (hasText) {
-                        sb.append(xpp.getText());
+                    break;
+                    case XmlPullParser.TEXT: {
+                        if (hasText) {
+                            sb.append(xpp.getText());
+                        }
                     }
-                }
-                break;
-                case XmlPullParser.START_DOCUMENT: {
-                    data.chapter = data.book;
-                }
-                break;
-                case XmlPullParser.END_TAG: {
-                    endPbc(xpp.getName(), sb, data);
-                    sb.setLength(0);
-                }
-                break;
+                    break;
+                    case XmlPullParser.START_DOCUMENT: {
+                        data.chapter = data.book;
+                    }
+                    break;
+                    case XmlPullParser.END_TAG: {
+                        endPbc(xpp.getName(), sb, data);
+                        sb.setLength(0);
+                    }
+                    break;
                 }
                 event = xpp.next();
             } while (event != XmlPullParser.END_DOCUMENT);
@@ -182,20 +181,20 @@ public class PmabParser extends VdmParser implements PMAB {
         val xpp = data.xpp;
         boolean hasText = false;
         switch (tag) {
-        case "chapter":
-            data.newChapter();
-        break;
-        case "item": {
-            data.itemName = getAttribute(xpp, "name");
-            data.itemType = xpp.getAttributeValue(null, "type");
-            hasText = true;
-        }
-        break;
-        case "content": {
-            data.itemType = xpp.getAttributeValue(null, "type");
-            hasText = true;
-        }
-        break;
+            case "chapter":
+                data.newChapter();
+                break;
+            case "item": {
+                data.itemName = getAttribute(xpp, "name");
+                data.itemType = xpp.getAttributeValue(null, "type");
+                hasText = true;
+            }
+            break;
+            case "content": {
+                data.itemType = xpp.getAttributeValue(null, "type");
+                hasText = true;
+            }
+            break;
         }
         return hasText;
     }
@@ -203,37 +202,37 @@ public class PmabParser extends VdmParser implements PMAB {
     private void endPbc(String tag, StringBuilder sb, Local data) throws IOException, ParserException {
         val itemType = data.itemType;
         switch (tag) {
-        case "chapter":
-            data.chapter = data.chapter.getParent();
-        break;
-        case "item": {
-            data.chapter.getAttributes().set(data.itemName, parseVariant(sb.toString().trim(), data));
-        }
-        break;
-        case "content": {
-            Text text;
-            val str = sb.toString().trim();
-            if (itemType.startsWith("text/")) {
-                val flob = Flobs.forVdm(data.reader, str, firstPartOf(itemType, ";"));
-                val encoding = valueOfName(itemType, "encoding", ";");
-                text = Texts.forFlob(flob, data.config.getString("pmab.textEncoding", encoding),
-                        secondPartOf(flob.getMime(), "/"));
-            } else {
-                text = Texts.forString(str);
+            case "chapter":
+                data.chapter = data.chapter.getParent();
+                break;
+            case "item": {
+                data.chapter.getAttributes().set(data.itemName, parseVariant(sb.toString().trim(), data));
             }
-            data.chapter.setText(text);
-        }
-        break;
+            break;
+            case "content": {
+                Text text;
+                val str = sb.toString().trim();
+                if (itemType.startsWith("text/")) {
+                    val flob = Flobs.forVdm(data.reader, str, firstPartOf(itemType, ";"));
+                    val encoding = valueOfName(itemType, "encoding", ";");
+                    text = Texts.forFlob(flob, data.config.getString("pmab.textEncoding", encoding),
+                            secondPartOf(flob.getMime(), "/"));
+                } else {
+                    text = Texts.forString(str);
+                }
+                data.chapter.setText(text);
+            }
+            break;
         }
     }
 
     private int getVersion(XmlPullParser xpp, String error) throws ParserException {
         val str = getAttribute(xpp, "version");
         switch (str) {
-        case "3.0":
-            return 3;
-        default:
-            throw error(error);
+            case "3.0":
+                return 3;
+            default:
+                throw error(error);
         }
     }
 
@@ -243,12 +242,12 @@ public class PmabParser extends VdmParser implements PMAB {
             return text;
         }
         switch (type) {
-        case TEXT:
-            return Texts.forString(text);
-        case LOCALE:
-            return parseLocale(text);
-        default:
-            return text;
+            case TEXT:
+                return Texts.forString(text);
+            case LOCALE:
+                return parseLocale(text);
+            default:
+                return text;
         }
     }
 

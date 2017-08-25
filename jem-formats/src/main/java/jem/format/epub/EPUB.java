@@ -73,5 +73,5 @@ public interface EPUB {
 
     public static String dateFormat = "yyyy-M-d";
 
-   
+
 }

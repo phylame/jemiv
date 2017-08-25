@@ -1,12 +1,12 @@
 package jem.format.epub;
 
-import java.util.Set;
-
 import jclp.function.Provider;
 import jclp.util.CollectionUtils;
 import jclp.value.Lazy;
 import jem.epm.Parser;
 import jem.epm.impl.AbstractFactory;
+
+import java.util.Set;
 
 public class EpubFactory extends AbstractFactory {
     @Override

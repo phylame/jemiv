@@ -18,9 +18,6 @@
 
 package jem.crawler;
 
-import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-
 import jclp.log.Level;
 import jclp.log.Log;
 import jclp.util.AsyncTask;
@@ -32,6 +29,9 @@ import jem.util.text.Texts;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
+
+import java.io.IOException;
+import java.util.concurrent.ExecutorService;
 
 public class CrawlerText extends AbstractText {
     private static final String TAG = "CrawlerText";

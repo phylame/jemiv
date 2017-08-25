@@ -21,10 +21,10 @@ package jem.epm.impl;
 import jclp.io.IOUtils;
 import jclp.setting.Settings;
 import jem.Book;
-import jem.util.TypedConfig;
-import jem.epm.util.MakerException;
 import jem.epm.util.M;
+import jem.epm.util.MakerException;
 import jem.util.JemException;
+import jem.util.TypedConfig;
 import lombok.val;
 
 import java.io.Closeable;
