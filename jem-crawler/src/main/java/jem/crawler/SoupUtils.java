@@ -114,7 +114,7 @@ public final class SoupUtils {
                 .filter(stringNotEmpty)
                 .join(separator);
     }
-    
+
     public static String unquote(String str) {
         return trimmed(str.replace("\u00A0", ""));
     }

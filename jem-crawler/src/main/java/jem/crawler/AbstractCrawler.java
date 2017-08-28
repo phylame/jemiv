@@ -22,8 +22,9 @@ import jclp.io.HttpUtils;
 import jclp.io.IOUtils;
 import jem.util.TypedConfig;
 import jem.util.flob.Flob;
-import jem.util.flob.Flobs;
+import jem.util.flob.impl.URLFlob;
 import lombok.val;
+
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -31,10 +32,7 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.*;
 import java.util.zip.GZIPInputStream;
 
 import static jclp.util.StringUtils.isNotEmpty;
@@ -54,8 +52,8 @@ public abstract class AbstractCrawler implements Crawler {
         }
     }
 
-    protected final Flob getFlob(String url) throws MalformedURLException {
-        return Flobs.forURL(new URL(url));
+    protected final Flob getFlob(String url, TypedConfig config) throws MalformedURLException {
+        return new CrawlerFlob(new URL(url), null, "get", config);
     }
 
     protected final Document getSoup(String url, TypedConfig config) throws IOException {
@@ -134,5 +132,21 @@ public abstract class AbstractCrawler implements Crawler {
             }
         }
         throw new SocketTimeoutException("cannot connect to " + url);
+    }
+
+    private class CrawlerFlob extends URLFlob {
+        private final String method;
+        private final TypedConfig config;
+
+        CrawlerFlob(URL url, String mime, String method, TypedConfig config) {
+            super(url, mime);
+            this.method = method;
+            this.config = config;
+        }
+
+        @Override
+        public InputStream openStream() throws IOException {
+            return openConnection(getUrl().toString(), method, config).getInputStream();
+        }
     }
 }

@@ -1,16 +1,14 @@
 package jem.crawler.impl;
 
 import jclp.function.BiFunction;
-import jclp.util.ArrayUtils;
-import jclp.util.CollectionUtils;
-import jclp.util.DateUtils;
-import jclp.util.Sequence;
+import jclp.util.*;
 import jem.Book;
 import jem.crawler.*;
 import jem.util.JemException;
 import jem.util.TypedConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+
 import org.json.JSONObject;
 import org.jsoup.helper.StringUtil;
 import org.jsoup.select.Elements;
@@ -42,7 +40,7 @@ public class ZongHeng extends ReusedCrawler {
         Elements stub = doc.select("head");
         setTitle(book, getMeta(stub, "title"));
         setIntro(book, getMeta(stub, "description"));
-        setCover(book, getFlob(getMeta(stub, "image")));
+        setCover(book, getFlob(getMeta(stub, "image"), config));
         setGenre(book, getMeta(stub, "novel:category"));
         setAuthor(book, getMeta(stub, "novel:author"));
         setState(book, getMeta(stub, "novel:status"));
@@ -79,7 +77,7 @@ public class ZongHeng extends ReusedCrawler {
     private void fetchBookMobile(Book book, String url, TypedConfig config) throws IOException {
         val doc = getSoup(url, config);
         Elements stub = doc.select("div.booksite");
-        setCover(book, getFlob(queryLink(stub, "img")));
+        setCover(book, getFlob(queryLink(stub, "img"), config));
         stub = stub.select("div.bookinfo");
         setTitle(book, queryText(stub, "h1"));
         stub = stub.select("div.info");
@@ -99,7 +97,8 @@ public class ZongHeng extends ReusedCrawler {
     protected int fetchPage(int page, Object arg) throws IOException {
         val data = (Local) arg;
         val pageSize = data.config.getInt("crawler.zongheng.pageSize", 180);
-        String url = data.url + String.format("/list?h5=1&bookId=%s&pageNum=%s&pageSize=%s&asc=0", data.bookId, page, pageSize);
+        String url = data.url
+                + String.format("/list?h5=1&bookId=%s&pageNum=%s&pageSize=%s&asc=0", data.bookId, page, pageSize);
         val json = getJson(url, ((Local) arg).config).optJSONObject("chapterlist");
         if (json == null) {
             return 0;
@@ -166,11 +165,6 @@ public class ZongHeng extends ReusedCrawler {
             url = String.format(TEXT_PATTERN, config.getString("bookId", ""), json.getString("nextChapterId"));
         }
         return sb.toString();
-    }
-
-    @Override
-    public Crawler getCrawler() {
-        return this;
     }
 
     @Override

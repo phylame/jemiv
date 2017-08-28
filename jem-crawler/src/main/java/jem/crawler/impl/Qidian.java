@@ -21,13 +21,11 @@ package jem.crawler.impl;
 import jclp.io.IOUtils;
 import jem.Book;
 import jem.Chapter;
-import jem.crawler.CrawlerBook;
-import jem.crawler.CrawlerText;
-import jem.crawler.M;
-import jem.crawler.ReusedCrawler;
+import jem.crawler.*;
 import jem.util.JemException;
 import jem.util.TypedConfig;
 import lombok.val;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
@@ -38,7 +36,9 @@ import java.util.Set;
 import static jclp.util.CollectionUtils.setOf;
 import static jclp.util.StringUtils.trimmed;
 import static jem.Attributes.*;
-import static jem.crawler.SoupUtils.*;
+import static jem.crawler.SoupUtils.firstText;
+import static jem.crawler.SoupUtils.queryLink;
+import static jem.crawler.SoupUtils.queryText;
 
 public class Qidian extends ReusedCrawler {
     @Override
@@ -54,7 +54,7 @@ public class Qidian extends ReusedCrawler {
         setTitle(book, queryText(stub, "h1 em"));
         val src = queryLink(doc, "a#bookImg img");
         if (src != null) {
-            setCover(book, getFlob(src.replaceFirst("[\\d]+$", "600") + ".jpg"));
+            setCover(book, getFlob(src.replaceFirst("[\\d]+$", "600") + ".jpg", config));
         }
         setAuthor(book, queryText(stub, "h1 a"));
         setState(book, queryText(stub, "p.tag span:eq(0)"));
