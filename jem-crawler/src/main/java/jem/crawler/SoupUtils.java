@@ -25,6 +25,7 @@ import jclp.util.RandomUtils;
 import jclp.util.Sequence;
 import lombok.NonNull;
 import lombok.val;
+
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
@@ -88,7 +89,7 @@ public final class SoupUtils {
         int i = 0;
         for (val node : element.childNodes()) {
             if (node instanceof TextNode) {
-                val text = trimmed(((TextNode) node).text());
+                val text = unquote(((TextNode) node).text());
                 if (isNotEmpty(text) && index == i++) {
                     return text;
                 }
@@ -113,6 +114,10 @@ public final class SoupUtils {
                 .filter(stringNotEmpty)
                 .join(separator);
     }
+    
+    public static String unquote(String str) {
+        return trimmed(str.replace("\u00A0", ""));
+    }
 
     private static final NodeToString nodeToString = new NodeToString();
 
@@ -122,9 +127,9 @@ public final class SoupUtils {
         @Override
         public String render(Node node) {
             if (node instanceof TextNode) {
-                return trimmed(((TextNode) node).text());
+                return unquote(((TextNode) node).text());
             } else if (node instanceof Element) {
-                return trimmed(((Element) node).text());
+                return unquote(((Element) node).text());
             }
             return "";
         }
