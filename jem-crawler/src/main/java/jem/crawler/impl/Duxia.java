@@ -2,11 +2,13 @@ package jem.crawler.impl;
 
 import jclp.util.DateUtils;
 import jem.Book;
-import jem.crawler.*;
+import jem.crawler.CrawlerBook;
+import jem.crawler.CrawlerText;
+import jem.crawler.M;
+import jem.crawler.ReusedCrawler;
 import jem.util.JemException;
 import jem.util.TypedConfig;
 import lombok.val;
-
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -16,9 +18,9 @@ import java.util.Set;
 
 import static jclp.util.CollectionUtils.setOf;
 import static jem.Attributes.*;
+import static jem.crawler.SoupUtils.queryText;
 
 public class Duxia extends ReusedCrawler {
-
     @Override
     public Book getBook(String url, TypedConfig config) throws JemException, IOException {
         if (url.contains("wap.duxia.org")) {
@@ -39,7 +41,7 @@ public class Duxia extends ReusedCrawler {
 
         stub = doc.select("div.articleInfoRight");
         setWords(book, stub.select("ol p:eq(0) strong:eq(6)").text());
-        setIntro(book, SoupUtils.queryText(stub, "#wrap", "\n"));
+        setIntro(book, queryText(stub, "#wrap", "\n"));
 
         doc = getSoup(stub.select("a.reader").first().absUrl("href"), config);
         for (val a : doc.select("table.acss a")) {
@@ -58,7 +60,7 @@ public class Duxia extends ReusedCrawler {
 
     @Override
     public String getText(String url, TypedConfig config) throws JemException, IOException {
-        return "";
+        return queryText(getSoup(url, config), "#content", System.lineSeparator());
     }
 
     @Override

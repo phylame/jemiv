@@ -34,7 +34,7 @@
     <orderEntry type="module" module-name="jem-core" />
     <orderEntry type="library" name="Maven: pw.phylame.util:commons:2.2.0" level="project" />
     <orderEntry type="module" module-name="jem-kotlin" />
-    <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-stdlib:1.1.4" level="project" />
+    <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-stdlib:1.1.4-2" level="project" />
     <orderEntry type="library" name="Maven: org.jetbrains:annotations:13.0" level="project" />
     <orderEntry type="module" module-name="jem-formats" />
     <orderEntry type="library" name="Maven: xpp3:xpp3:1.1.4c" level="project" />
