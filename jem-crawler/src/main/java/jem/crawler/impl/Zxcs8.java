@@ -33,6 +33,7 @@ import jem.epm.impl.AbstractFactory;
 import jem.epm.impl.FileParser;
 import jem.epm.util.ParserException;
 import jem.util.JemException;
+import jem.util.flob.Flob;
 import jem.util.flob.Flobs;
 import jem.util.text.AbstractText;
 import jem.util.text.Texts;
@@ -101,6 +102,7 @@ public class Zxcs8 extends AbstractFactory implements FileParser {
             if (size == 4 && i == 1) {
                 val doc = Jsoup.parse(values.get(1).toString());
                 setIntro(book, SoupUtils.joinText(doc.select("body"), System.lineSeparator()));
+                setCover(book, getCover(base, values.get(3).toString()));
                 continue;
             }
             if (size > 3) {
@@ -117,8 +119,7 @@ public class Zxcs8 extends AbstractFactory implements FileParser {
                 chapter = section.newChapter(values.get(1).toString());
             }
             if (size > 6) {
-                val src = StringUtils.valueOfName(values.get(6).toString(), "src", " ");
-                setCover(section, Flobs.forFile(base.resolve(src).normalize().toFile()));
+                setCover(section, getCover(base, values.get(6).toString()));
             }
             setWords(chapter, values.get(2).toString());
             chapter.setText(new MyText(base.resolve("../txt/" + values.get(0) + ".txt").normalize()));
@@ -158,6 +159,11 @@ public class Zxcs8 extends AbstractFactory implements FileParser {
         }
     }
 
+    private Flob getCover(Path base, String html) {
+        val src = Jsoup.parse(html).select("img").attr("src");
+        return Flobs.forFile(base.resolve(src).normalize().toFile());
+    }
+
     @Override
     public Book parse(File dir, Settings arguments) throws IOException, JemException {
         return parse(dir.getPath(), arguments);
@@ -165,7 +171,7 @@ public class Zxcs8 extends AbstractFactory implements FileParser {
 
     @Override
     public String getName() {
-        return "zxcs8";
+        return "CHM for zxcs8.com";
     }
 
     @Override
