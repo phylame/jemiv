@@ -18,10 +18,15 @@
 
 package jem.imabw.app
 
+import jem.imabw.app.contents.ContentsPane
+import jem.imabw.app.editor.EditorPane
+import jem.imabw.app.ui.Dashboard
 import jem.util.Build
 import mala.core.App
+import mala.core.App.resourceManager
 import mala.ixin.IDelegate
-import javax.swing.JFrame
+import mala.ixin.IxIn
+import java.util.*
 
 fun main(args: Array<String>) {
     App.run(Imabw, args)
@@ -32,7 +37,37 @@ object Imabw : IDelegate() {
 
     override val version = Build.VERSION
 
-    override fun initUI() {
-        JFrame("Imabw").isVisible = true
+    override fun onStart() {
+        Locale.setDefault(Locale.ENGLISH)
+        App.translator = resourceManager.linguistFor("i18n/dev/app")
+    }
+
+    override fun onInit() {
+        IxIn.initSwing()
+        Dashboard.isVisible = true
+    }
+
+    override fun onReady() {
+        postEvent({
+            proxy.register(Workbench, ContentsPane, EditorPane)
+        }, {
+            Workbench.start()
+        })
+    }
+
+    override fun performed(command: String): Boolean {
+        when (command) {
+            "editSettings" -> {
+            }
+            "findAction" -> {
+            }
+            "help" -> {
+            }
+            "about" -> {
+            }
+            "garbageCollect" -> System.gc()
+            else -> return super.performed(command)
+        }
+        return true
     }
 }

@@ -139,7 +139,7 @@ public class EpubParser extends VdmParser implements EPUB {
                                 throw error("epub.parse.unsupportedVersion", version);
                             }
                         } else if (tag.equals("spine")) {
-                            data.tocId = xpp.getAttributeValue(null, "toc");
+                            data.tocId = xpp.getAttributeValue(null, "nav");
                         }
                     }
                     break;
@@ -235,12 +235,12 @@ public class EpubParser extends VdmParser implements EPUB {
 
     private void readNcx(Local data) throws ParserException, IOException {
         if (isEmpty(data.tocId)) {
-            Log.d(TAG, "no toc resource found");
+            Log.d(TAG, "no nav resource found");
             return;
         }
         Item item = data.items.remove(data.tocId);
         if (item == null) {
-            Log.d(TAG, "no toc resource found for id: {0}", data.tocId);
+            Log.d(TAG, "no nav resource found for id: {0}", data.tocId);
             return;
         }
         val book = data.book;

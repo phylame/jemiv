@@ -35,7 +35,7 @@ public interface EPUB {
     public static final String DC_XML_NS = "http://purl.org/dc/elements/1.1/";
 
     // NCX (the Navigation Center eXtended)
-    public static final String NCX_FILE = "toc.ncx";
+    public static final String NCX_FILE = "nav.ncx";
     public static final String NCX_FILE_ID = "ncx";
 
     public static final String BOOK_ID_NAME = "book_id";
@@ -68,8 +68,8 @@ public interface EPUB {
     public static final String INFO_PAGE_ID = "info-page";
     public static final String INFO_PAGE_FILE = "info.xhtml";
 
-    public static final String TOC_PAGE_ID = "toc-page";
-    public static final String TOC_PAGE_FILE = "toc.xhtml";
+    public static final String TOC_PAGE_ID = "nav-page";
+    public static final String TOC_PAGE_FILE = "nav.xhtml";
 
     public static String dateFormat = "yyyy-M-d";
 

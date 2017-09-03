@@ -85,7 +85,7 @@ public class PmabMaker extends VdmMaker implements PMAB {
 
     private void writePbc(Local data) throws JemException, IOException {
         val buffer = initXml("pbc", PBC_XML_NS, data);
-        val render = data.render.beginTag("toc");
+        val render = data.render.beginTag("nav");
         int i = 1;
         for (val chapter : data.book) {
             if (Thread.interrupted()) {
