@@ -40,9 +40,6 @@ import org.apache.commons.cli.OptionGroup
 import java.util.Calendar
 import java.util.Locale
 import kotlin.collections.HashMap
-import kotlin.collections.MutableMap
-import kotlin.collections.forEach
-import kotlin.collections.joinToString
 
 fun main(args: Array<String>) {
     App.run(SCI, args)

@@ -25,7 +25,7 @@ import jem.epm.Parser;
 public abstract class AbstractFactory implements EpmFactory {
     @Override
     public boolean hasParser() {
-        return false;
+        return getParser() != null;
     }
 
     @Override
@@ -35,7 +35,7 @@ public abstract class AbstractFactory implements EpmFactory {
 
     @Override
     public boolean hasMaker() {
-        return false;
+        return getMaker() != null;
     }
 
     @Override

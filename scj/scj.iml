@@ -40,5 +40,7 @@
     <orderEntry type="library" name="Maven: org.json:json:20170516" level="project" />
     <orderEntry type="library" name="Maven: org.jsoup:jsoup:1.10.3" level="project" />
     <orderEntry type="library" name="Maven: pw.phylame.mala:mala-cli:2.1" level="project" />
+    <orderEntry type="library" name="Maven: pw.phylame.mala:mala-core:2.1" level="project" />
+    <orderEntry type="library" name="Maven: commons-cli:commons-cli:1.4" level="project" />
   </component>
 </module>

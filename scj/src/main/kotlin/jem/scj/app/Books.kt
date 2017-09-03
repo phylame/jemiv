@@ -36,7 +36,7 @@ private const val TAG = "Books"
 fun checkInputFormat(format: String, path: String = ""): Boolean = if (format.isEmpty()) {
     App.error(tr("error.input.unknown", path))
     false
-} else if (!(SCI.epmManager.getService(format)?.hasParser() ?: false)) {
+} else if (SCI.epmManager.getService(format)?.hasParser() != true) {
     App.error(tr("error.input.unsupported", format))
     false
 } else true
@@ -44,7 +44,7 @@ fun checkInputFormat(format: String, path: String = ""): Boolean = if (format.is
 fun checkOutputFormat(format: String, path: String = ""): Boolean = if (format.isEmpty()) {
     App.error(tr("error.output.unknown", path))
     false
-} else if (!(SCI.epmManager.getService(format)?.hasMaker() ?: false)) {
+} else if (SCI.epmManager.getService(format)?.hasMaker() != true) {
     App.error(tr("error.output.unsupported", format))
     false
 } else true

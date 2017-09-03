@@ -25,7 +25,6 @@ import jclp.util.RandomUtils;
 import jclp.util.Sequence;
 import lombok.NonNull;
 import lombok.val;
-
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
