@@ -126,7 +126,7 @@ fun makeBook(param: MakerParam): String? {
 private fun attachAttributes(book: Book) {
     for ((k, v) in SCI.outAttributes) {
         try {
-            val value = Variants.parse(Attributes.getType(k), v.toString())
+            val value = Variants.parse(v.toString(), Attributes.getType(k))
             if (value == null) {
                 App.error(tr("error.misc.badString", v))
                 Log.d(TAG, "cannot convert \"{0}\" to \"{1}\"", v, k)
